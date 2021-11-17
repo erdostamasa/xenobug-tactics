@@ -1,3 +1,15 @@
+# Created by https://www.gitignore.io/api/unity
+# Edit at https://www.gitignore.io/?templates=unity
+
+# Jetbrain Rider Cache
+.idea/
+Assets/Plugins/Editor/JetBrains*
+
+# Visual Studio Code
+.vscode/
+
+
+### Unity ###
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -35,3 +47,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# End of https://www.gitignore.io/api/unity
