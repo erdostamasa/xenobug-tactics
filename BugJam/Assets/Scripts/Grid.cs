@@ -26,17 +26,96 @@ public class Grid : MonoBehaviour {
 
     void Start() {
         GenerateGrid();
-        //
-        // foreach (Tile tile in grid) {
-        //     print(tile.gameObject.name);
-        // }
     }
 
 
-    public void ShowPath(Tile origin, Tile target) {
-        Node[,] nodes = BuildNodeArray();
+    Node[,] nodes;
+    Node origin = null;
+    Node target = null;
+    List<Node> toSearch;
+    List<Node> processed;
 
-        print(Utils.MatrixToString(nodes));
+    public List<Node> GetPath(Tile originTile, Tile targetTile) {
+        // build graph
+        nodes = BuildNodeArray();
+        // print(Utils.MatrixToString(nodes));
+
+        //find start and target
+        // Node origin = null;
+        // Node target = null;
+        for (int x = 0; x < nodes.GetLength(0); x++) {
+            for (int y = 0; y < nodes.GetLength(1); y++) {
+                if (nodes[x, y] != null) {
+                    if (nodes[x, y].tile == originTile) {
+                        origin = nodes[x, y];
+                    }
+                    else if (nodes[x, y].tile == targetTile) {
+                        target = nodes[x, y];
+                    }
+                }
+            }
+        }
+
+        if (origin == null || target == null) {
+            throw new ArgumentException("Origin tile: " + origin + " target: " + target);
+        }
+
+        // A*
+
+        // setup first node
+        origin.originDistance = 0;
+        origin.targetDistance = (target.tile.transform.position - origin.tile.transform.position).magnitude;
+        origin.cost = origin.originDistance + origin.targetDistance;
+
+        toSearch = new List<Node>() { origin };
+        processed = new List<Node>();
+
+        while (toSearch.Any()) {
+            // Find lowest cost
+            Node current = toSearch[0];
+            foreach (Node node in toSearch) {
+                if (node.cost < current.cost || Math.Abs(node.cost - current.cost) < 0.1f && node.targetDistance < current.targetDistance) {
+                    current = node;
+                }
+            }
+
+            processed.Add(current);
+            toSearch.Remove(current);
+
+            if (current == target) {
+                print("TARGET FOUND");
+                List<Node> path = new List<Node>();
+                Node currentPathTile = target;
+                while (currentPathTile != origin) {
+                    path.Add(currentPathTile);
+                    currentPathTile = currentPathTile.connection;
+                }
+
+                path.Add(origin);
+                return path;
+            }
+
+
+            foreach (Node neighbour in current.neighbours) {
+                if (!processed.Contains(neighbour)) {
+                    bool inSearch = toSearch.Contains(neighbour);
+
+                    float costToNeighbour = current.originDistance + 1;
+                    if (!inSearch || costToNeighbour < neighbour.originDistance) {
+                        neighbour.originDistance = costToNeighbour;
+                        neighbour.connection = current;
+
+                        if (!inSearch) {
+                            neighbour.targetDistance = (target.tile.transform.position - neighbour.tile.transform.position).magnitude;
+                            neighbour.cost = neighbour.originDistance + neighbour.targetDistance;
+                            toSearch.Add(neighbour);
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     Node[,] BuildNodeArray() {
@@ -185,12 +264,17 @@ public class Grid : MonoBehaviour {
         }
     }
 
-    private class Node {
+    public class Node {
+        public Node connection;
         public Tile tile;
         public float originDistance;
         public float targetDistance;
         public float cost;
         public List<Node> neighbours;
+
+        public Node() {
+            originDistance = float.MaxValue;
+        }
 
         public override string ToString() {
             string n = "";

@@ -16,6 +16,7 @@ public class Tile : MonoBehaviour {
     // }
 
     public void Select() {
+        selectedQuad.GetComponent<Renderer>().material = defaultMaterial;
         selectedQuad.gameObject.SetActive(true);
     }
     

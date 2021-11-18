@@ -13,17 +13,35 @@ public class MouseController : MonoBehaviour {
     Tile originTile;
     Tile targetTile;
 
+    List<Grid.Node> path;
+
     void Update() {
         UpdateMouseInput();
         if (Input.GetMouseButtonDown(0)) {
             if (originTile == null && tileUnderMouse != null) {
                 originTile = tileUnderMouse;
-                originTile.Select(originMaterial);
+                //originTile.Select(originMaterial);
             }
             else if (originTile != null && targetTile == null && tileUnderMouse != null) {
                 targetTile = tileUnderMouse;
-                targetTile.Select(targetMaterial);
-                Grid.instance.ShowPath(originTile, targetTile);
+                // targetTile.Select(targetMaterial);
+                if (path != null) {
+                    foreach (Grid.Node node in path) {
+                        node.tile.Unselect();
+                    }
+
+                    path = null;
+                }
+
+                path = Grid.instance.GetPath(originTile, targetTile);
+                if (path == null) {
+                    print("Can't find path to destination!");
+                }
+                else {
+                    foreach (Grid.Node node in path) {
+                        node.tile.Select();
+                    }
+                }
             }
             else {
                 if (originTile != null) {
@@ -34,6 +52,14 @@ public class MouseController : MonoBehaviour {
                 if (targetTile != null) {
                     targetTile.Unselect();
                     targetTile = null;
+                }
+
+                if (path != null) {
+                    foreach (Grid.Node node in path) {
+                        node.tile.Unselect();
+                    }
+
+                    path = null;
                 }
             }
         }

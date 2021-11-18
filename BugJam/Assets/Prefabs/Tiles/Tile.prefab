@@ -97,8 +97,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedQuad: {fileID: 3121857455322846758}
+  defaultMaterial: {fileID: 2100000, guid: df92554f9d280144393e25bdefabcdc4, type: 2}
   x: 0
   y: 0
+  selectable: 0
+  neighbours: []
 --- !u!65 &378034150091045266
 BoxCollider:
   m_ObjectHideFlags: 0
