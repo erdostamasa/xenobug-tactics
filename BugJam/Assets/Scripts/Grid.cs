@@ -12,12 +12,15 @@ public class Grid : MonoBehaviour {
     [SerializeField] Transform tilePrefab;
     [SerializeField] Transform mountainTilePrefab;
 
+
     [Header("Setup")]
+    [SerializeField] Transform backgroundTransform;
     [SerializeField] Transform coordTextPrefab;
     [SerializeField] TextAsset mapFile;
 
 
-    Tile[,] grid;
+    public Tile[,] grid;
+    Node[,] nodes;
     //Tile selectedTile;
 
     void Awake() {
@@ -26,23 +29,106 @@ public class Grid : MonoBehaviour {
 
     void Start() {
         GenerateGrid();
+        BuildNodeArray();
+
+        // Setup background cube
+        float pos = (grid.GetLength(0) % 2 == 0) ? grid.GetLength(0) / 2f - 0.5f : grid.GetLength(0) / 2;
+        backgroundTransform.position = new Vector3(pos, -0.41f, pos);
+        backgroundTransform.localScale = new Vector3(grid.GetLength(0), 1, grid.GetLength(0));
     }
 
 
-    Node[,] nodes;
-    Node origin = null;
-    Node target = null;
-    List<Node> toSearch;
-    List<Node> processed;
+    public Unit SpawnUnit(int x, int y, Transform prefab) {
+        Unit spawned = Instantiate(prefab, grid[x, y].unitPosition.position, prefab.rotation).GetComponent<Unit>();
+        grid[x, y].unit = spawned;
+        spawned.currentTile = grid[x, y];
+        return spawned;
+    }
 
-    public List<Node> GetPath(Tile originTile, Tile targetTile) {
-        // build graph
-        nodes = BuildNodeArray();
-        // print(Utils.MatrixToString(nodes));
+    // Return all tiles withing {range} steps
+    public List<Tile> GetReachableInRange(Tile originTile, int distance) {
+        List<Node> result = GetNeighboursRecursive(nodes[originTile.x, originTile.y], distance);
 
+        result = result.Distinct().ToList();
+        
+        List<Node> toRemove = new List<Node>();
+        foreach (Node node in result) {
+            if (GetPath(originTile, node.tile) == null) {
+                toRemove.Add(node);
+            }
+        }
+
+        result = result.Except(toRemove).ToList();
+
+        if (result.Contains(nodes[originTile.x, originTile.y])) {
+            result.Remove(nodes[originTile.x, originTile.y]);
+        }
+
+        List<Tile> tileResult = result.Select(n => n.tile).ToList();
+        return tileResult;
+    }
+
+    List<Node> GetNeighboursRecursive(Node center, int depth) {
+        if (depth < 0) {
+            throw new ArgumentException("Depth must be non negative: " + depth);
+        }
+
+        if (depth == 0) {
+            return new List<Node>();
+        }
+
+        List<Node> neighbours = new List<Node>();
+
+        int x = center.tile.x;
+        int y = center.tile.y;
+
+        List<(int, int)> coords = new List<(int, int)>();
+
+
+        //up
+        if (y + 1 < grid.GetLength(0)) {
+            coords.Add((x, y + 1));
+        }
+
+        //down
+        if (y - 1 >= 0) {
+            coords.Add((x, y - 1));
+        }
+
+        //right
+        if (x + 1 < grid.GetLength(0)) {
+            coords.Add((x + 1, y));
+        }
+
+        //left
+        if (x - 1 >= 0) {
+            coords.Add((x - 1, y));
+        }
+
+        foreach ((int, int) coord in coords) {
+            if (nodes[coord.Item1, coord.Item2] == null) continue;
+            Node c = nodes[coord.Item1, coord.Item2];
+            if (!neighbours.Contains(c) && c.tile.walkable && c.tile.unit == null) {
+                neighbours.Add(c);
+            }
+        }
+
+        List<Node> newList = new List<Node>();
+        foreach (Node neighbour in neighbours) {
+            newList.AddRange(GetNeighboursRecursive(neighbour, depth - 1));
+        }
+
+        neighbours.AddRange(newList);
+
+
+        return neighbours;
+    }
+
+    // Returns list of tiles on a path to target
+    public List<Tile> GetPath(Tile originTile, Tile targetTile) {
         //find start and target
-        // Node origin = null;
-        // Node target = null;
+        Node origin = null;
+        Node target = null;
         for (int x = 0; x < nodes.GetLength(0); x++) {
             for (int y = 0; y < nodes.GetLength(1); y++) {
                 if (nodes[x, y] != null) {
@@ -67,8 +153,8 @@ public class Grid : MonoBehaviour {
         origin.targetDistance = (target.tile.transform.position - origin.tile.transform.position).magnitude;
         origin.cost = origin.originDistance + origin.targetDistance;
 
-        toSearch = new List<Node>() { origin };
-        processed = new List<Node>();
+        List<Node> toSearch = new List<Node>() { origin };
+        List<Node> processed = new List<Node>();
 
         while (toSearch.Any()) {
             // Find lowest cost
@@ -83,21 +169,20 @@ public class Grid : MonoBehaviour {
             toSearch.Remove(current);
 
             if (current == target) {
-                print("TARGET FOUND");
-                List<Node> path = new List<Node>();
+                //print("TARGET FOUND");
+                List<Tile> path = new List<Tile>();
                 Node currentPathTile = target;
                 while (currentPathTile != origin) {
-                    path.Add(currentPathTile);
+                    path.Add(currentPathTile.tile);
                     currentPathTile = currentPathTile.connection;
                 }
 
-                path.Add(origin);
                 return path;
             }
 
 
             foreach (Node neighbour in current.neighbours) {
-                if (!processed.Contains(neighbour)) {
+                if (!processed.Contains(neighbour) && neighbour.tile.walkable && neighbour.tile.unit == null) {
                     bool inSearch = toSearch.Contains(neighbour);
 
                     float costToNeighbour = current.originDistance + 1;
@@ -118,9 +203,10 @@ public class Grid : MonoBehaviour {
         return null;
     }
 
-    Node[,] BuildNodeArray() {
+    // Setup Node array for pathfinding
+    void BuildNodeArray() {
         // build node array
-        Node[,] nodes = new Node[grid.GetLength(0), grid.GetLength(1)];
+        nodes = new Node[grid.GetLength(0), grid.GetLength(1)];
 
         // create nodes
         for (int x = 0; x < grid.GetLength(0); x++) {
@@ -166,8 +252,6 @@ public class Grid : MonoBehaviour {
                 nodes[x, y].neighbours = neighbours;
             }
         }
-
-        return nodes;
     }
 
     void GenerateGrid() {
@@ -198,15 +282,20 @@ public class Grid : MonoBehaviour {
             for (int y = 0; y < grid.GetLength(1); y++) {
                 Transform selectedPrefab = null;
                 bool selectable = false;
+                bool walkable = false;
                 switch (mapStringArray[x, y]) {
                     case "o":
                         selectedPrefab = tilePrefab;
                         selectable = true;
+                        walkable = true;
                         break;
                     case "m":
                         selectedPrefab = mountainTilePrefab;
                         break;
+                    case "x":
+                        break;
                     default:
+                        Debug.LogError("WRONG INPUT STRING");
                         break;
                 }
 
@@ -223,6 +312,7 @@ public class Grid : MonoBehaviour {
                     t.x = x;
                     t.y = y;
                     t.selectable = selectable;
+                    t.walkable = walkable;
                     grid[x, y] = t;
                 }
             }
@@ -264,6 +354,7 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    // Node class used for pathfinding
     public class Node {
         public Node connection;
         public Tile tile;
@@ -277,12 +368,7 @@ public class Grid : MonoBehaviour {
         }
 
         public override string ToString() {
-            string n = "";
-            foreach (Node neighbour in neighbours) {
-                n += neighbour.tile.gameObject.name + " ";
-            }
-
-            return tile + " " + n;
+            return tile.ToString();
         }
     }
 }

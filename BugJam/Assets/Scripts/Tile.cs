@@ -5,11 +5,14 @@ using UnityEngine;
 public class Tile : MonoBehaviour {
     [SerializeField] Transform selectedQuad;
     [SerializeField] Material defaultMaterial;
+    public Transform unitPosition;
     
     public int x;
     public int y;
     public bool selectable;
+    public bool walkable;
     public List<Tile> neighbours;
+    public Unit unit;
 
     // public void TileClicked() {
     //     Grid.instance.SelectTile(x, y);
