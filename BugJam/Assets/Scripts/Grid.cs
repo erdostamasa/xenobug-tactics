@@ -38,11 +38,12 @@ public class Grid : MonoBehaviour {
     }
 
 
-    public Unit SpawnUnit(int x, int y, Transform prefab, Unit.Owner owner) {
-        Unit spawned = Instantiate(prefab, grid[x, y].unitPosition.position, prefab.rotation).GetComponent<Unit>();
+    public Unit SpawnUnit(int x, int y, UnitDescriptor unit) {
+        Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
         grid[x, y].unit = spawned;
         spawned.currentTile = grid[x, y];
-        spawned.owner = owner;
+        spawned.owner = unit.owner;
+        spawned.SetAttackPattern(unit.attackPattern);
         return spawned;
     }
 
@@ -147,7 +148,8 @@ public class Grid : MonoBehaviour {
         }
 
         if (origin == null || target == null) {
-            throw new ArgumentException("Origin tile: " + origin + " target: " + target);
+            return new List<Tile>() { originTile };
+            //throw new ArgumentException("Origin tile: " + origin + " target: " + target);
         }
 
         // A*

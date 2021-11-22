@@ -8,21 +8,60 @@ public class GameManager : MonoBehaviour {
     public static GameManager instance;
 
     public GameState state;
-    EnemyAI opponent;
-    [SerializeField] PlayerController player;
+    public EnemyAI opponent;
+    public PlayerController player;
+    [SerializeField] LineRenderer line;
 
     [SerializeField] TurnDisplay turnDisplay;
 
     [Header("Units")]
-    [SerializeField] Transform playerUnit;
-    [SerializeField] Transform enemyUnit;
+    [SerializeField] Transform playerHeavyPrefab;
+    [SerializeField] Transform playerLightPrefab;
+    [SerializeField] Transform enemyUnitPrefab;
 
+
+    UnitDescriptor enemy;
+    UnitDescriptor playerHeavy;
+    UnitDescriptor playerLight;
 
     void Awake() {
         instance = this;
     }
 
+    public void DisplayLine(Tile from, Tile to, Color color) {
+        if (from != to) {
+            //check if selected can reach tile
+            List<Tile> path = Grid.instance.GetPath(from, to);
+
+            if (path != null) {
+                // draw path 
+                line.startColor = color;
+                line.endColor = color;
+                line.positionCount = path.Count + 1;
+                for (int i = 0; i < path.Count; i++) {
+                    line.SetPosition(i, path[i].transform.position + new Vector3(0, line.transform.position.y, 0));
+                }
+
+                line.SetPosition(path.Count, from.transform.position + new Vector3(0, line.transform.position.y, 0));
+            }
+        }
+    }
+
+    public void StraightLine(Tile from, Tile to, Color color) {
+        line.positionCount = 2;
+        line.startColor = color;
+        line.endColor = color;
+        line.SetPosition(0, from.transform.position + new Vector3(0, line.transform.position.y, 0));
+        line.SetPosition(1, to.transform.position + new Vector3(0, line.transform.position.y, 0));
+        
+    }
+
+    public void ResetLine() {
+        line.positionCount = 0;
+    }
+
     void Start() {
+        SetupUnitTypes();
         Application.targetFrameRate = 60;
         opponent = new RandomEnemyAI();
         state = GameState.PLAYER_TURN;
@@ -31,16 +70,13 @@ public class GameManager : MonoBehaviour {
 
         turnDisplay.PlayerTurn();
 
-        player.units.Add(PlaceUnit(3, 0, Unit.Owner.PLAYER));
-        player.units.Add(PlaceUnit(4, 0, Unit.Owner.PLAYER));
-        player.units.Add(PlaceUnit(5, 0, Unit.Owner.PLAYER));
+        opponent.units.Add(Grid.instance.SpawnUnit(3, 6, enemy));
+        opponent.units.Add(Grid.instance.SpawnUnit(2, 6, enemy));
+        opponent.units.Add(Grid.instance.SpawnUnit(4, 6, enemy));
 
-        opponent.units.Add(PlaceUnit(0, 6, Unit.Owner.ENEMY));
-        opponent.units.Add(PlaceUnit(1, 6, Unit.Owner.ENEMY));
-        opponent.units.Add(PlaceUnit(2, 6, Unit.Owner.ENEMY));
-        opponent.units.Add(PlaceUnit(3, 6, Unit.Owner.ENEMY));
-        opponent.units.Add(PlaceUnit(4, 6, Unit.Owner.ENEMY));
-        opponent.units.Add(PlaceUnit(5, 6, Unit.Owner.ENEMY));
+        player.units.Add(Grid.instance.SpawnUnit(3, 0, playerHeavy));
+        
+        player.units.Add(Grid.instance.SpawnUnit(4, 1, playerLight));
 
 
         StartCoroutine(GameLoop());
@@ -55,6 +91,33 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    void SetupUnitTypes() {
+        int[,] pattern = new int[,] {
+            { 0, 0, 1, 0, 0 },
+            { 0, 0, 1, 0, 0 },
+            { 1, 1, 0, 1, 1 },
+            { 0, 0, 1, 0, 0 },
+            { 0, 0, 1, 0, 0 },
+        };
+        enemy = new UnitDescriptor(enemyUnitPrefab, Unit.Owner.ENEMY, pattern);
+
+        pattern = new int[,] {
+            { 0, 0, 1, 0, 0 },
+            { 0, 0, 1, 0, 0 },
+            { 1, 1, 0, 1, 1 },
+            { 0, 0, 1, 0, 0 },
+            { 0, 0, 1, 0, 0 },
+        };
+        playerHeavy = new UnitDescriptor(playerHeavyPrefab, Unit.Owner.PLAYER, pattern);
+
+        pattern = new int[,] {
+            { 1, 1, 1 },
+            { 1, 0, 1 },
+            { 1, 1, 1 }
+        };
+        playerLight = new UnitDescriptor(playerLightPrefab, Unit.Owner.PLAYER, pattern);
+    }
+
     IEnumerator GameLoop() {
         while (true) {
             if (state == GameState.ENEMY_TURN) {
@@ -64,6 +127,7 @@ public class GameManager : MonoBehaviour {
                 foreach (Unit opponentUnit in opponent.units) {
                     opponentUnit.SetAvailable();
                 }
+
                 yield return StartCoroutine(opponent.MakeMove());
 
                 state = GameState.PLAYER_TURN;
@@ -74,20 +138,6 @@ public class GameManager : MonoBehaviour {
             }
 
             yield return new WaitForEndOfFrame();
-        }
-    }
-
-
-    Unit PlaceUnit(int x, int y, Unit.Owner owner) {
-        switch (owner) {
-            case Unit.Owner.ENEMY:
-                return (Grid.instance.SpawnUnit(x, y, enemyUnit, Unit.Owner.ENEMY));
-                break;
-            case Unit.Owner.PLAYER:
-                return (Grid.instance.SpawnUnit(x, y, playerUnit, Unit.Owner.PLAYER));
-                break;
-            default:
-                return null;
         }
     }
 

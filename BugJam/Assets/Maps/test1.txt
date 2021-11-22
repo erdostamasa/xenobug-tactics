@@ -3,5 +3,5 @@ o o o o o x x
 m o o o o x m
 m o o o o x m
 m m o o o x x
-m m o o o o x
-m m m o o o o
+x m o o o o x
+x m m o o o o

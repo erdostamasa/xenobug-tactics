@@ -22,8 +22,10 @@ public class PlayerController : MonoBehaviour {
         foreach (Unit unit in units) {
             unit.SetUnavailable();
         }
+
         GameManager.instance.state = GameManager.GameState.ENEMY_TURN;
     }
+
 
     void Update() {
         if (GameManager.instance.state == GameManager.GameState.ENEMY_TURN) return;
@@ -43,16 +45,22 @@ public class PlayerController : MonoBehaviour {
                 if (tileUnderMouse.unit != null) {
                     //clicked on own unit
                     if (units.Contains(tileUnderMouse.unit)) {
-                        //select unit
-                        selected = tileUnderMouse.unit;
-                        //display range
-                        selectedCommands = selected.GetAvailableMoves();
-                        foreach (MoveUnitCommand command in selectedCommands) {
-                            command.DisplayCommand();
+                        if (selected != null) {
+                            ResetSelection();
                         }
+                        else if (tileUnderMouse.unit.available) {
+                            ResetSelection();
+                            //select unit
+                            selected = tileUnderMouse.unit;
+                            //display range
+                            selectedCommands = selected.GetAvailableMoves();
+                            foreach (MoveUnitCommand command in selectedCommands) {
+                                command.DisplayCommand();
+                            }
 
-                        foreach (Tile tile in selected.GetAttackableTiles()) {
-                            tile.DisplayAttack();
+                            foreach (Tile tile in selected.GetAttackableTiles()) {
+                                tile.DisplayAttack();
+                            }
                         }
                     }
                     //clicked on enemy unit
@@ -65,10 +73,19 @@ public class PlayerController : MonoBehaviour {
                                 if (possibleAttack.target == tileUnderMouse.unit) {
                                     possibleAttack.Execute();
 
-                                    selected = null;
-                                    selectedCommands = null;
-                                    ResetGridDisplay();
+                                    ResetSelection();
                                 }
+                            }
+                        }
+                        else {
+                            ResetSelection();
+                            //display possible enemy moves
+                            foreach (MoveUnitCommand command in tileUnderMouse.unit.GetAvailableMoves()) {
+                                command.DisplayCommand();
+                            }
+
+                            foreach (Tile tile in tileUnderMouse.unit.GetAttackableTiles()) {
+                                tile.DisplayAttack();
                             }
                         }
                     }
@@ -81,36 +98,38 @@ public class PlayerController : MonoBehaviour {
                             if (command.x == tileUnderMouse.x && command.y == tileUnderMouse.y) {
                                 command.Execute();
 
-                                selected = null;
-                                selectedCommands = null;
-                                ResetGridDisplay();
+                                ResetSelection();
                             }
                         }
                     }
 
-                    selected = null;
-                    selectedCommands = null;
-                    ResetGridDisplay();
+                    ResetSelection();
                 }
             }
             else {
-                selected = null;
-                selectedCommands = null;
-                ResetGridDisplay();
+                ResetSelection();
             }
         }
 
 
-        //move player unit to random position
-        // if (Input.GetMouseButtonDown(0)) {
-        //     if (tileUnderMouse != null && tileUnderMouse.unit != null && units.Contains(tileUnderMouse.unit)) {
-        //         var moves = tileUnderMouse.unit.GetAvailableMoves();
-        //         int i = Random.Range(0, moves.Count);
-        //         moves[i].Execute();
-        //         GameManager.instance.state = GameManager.GameState.ENEMY_TURN;
-        //         tileUnderMouse.Select(Random.ColorHSV());
-        //     }
-        // }
+        GameManager.instance.ResetLine();
+        if (selected != null && tileUnderMouse != null && tileUnderMouse.unit != selected) {
+            //check if tile is in movement range
+            if (selected.GetMovableTiles().Contains(tileUnderMouse)) {
+                //check if selected can reach tile
+                List<Tile> path = Grid.instance.GetPath(selected.currentTile, tileUnderMouse);
+                if (path != null) {
+                    // draw path to tileundermouse
+                    GameManager.instance.DisplayLine(selected.currentTile, tileUnderMouse, Color.blue);
+                }
+            }
+        }
+    }
+
+    void ResetSelection() {
+        selected = null;
+        selectedCommands = null;
+        ResetGridDisplay();
     }
 
     void RemoveUnit(Unit unit) {

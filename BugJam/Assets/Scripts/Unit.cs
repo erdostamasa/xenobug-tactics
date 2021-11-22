@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class Unit : MonoBehaviour {
@@ -10,21 +12,25 @@ public class Unit : MonoBehaviour {
     public bool available;
     [SerializeField] Material availableMaterial;
     [SerializeField] Material unavailableMaterial;
+    [SerializeField] TextMeshProUGUI healthDisplay;
+    [SerializeField] TextMeshProUGUI attackDisplay;
 
-    public int range = 2;
+    public int moveRange = 1;
     public int health;
     public int damage;
 
     void Start() {
-        attackPattern = new int[,] {
-            { 0, 0, 1, 0, 0 },
-            { 0, 0, 1, 0, 0 },
-            { 1, 1, 0, 1, 1 },
-            { 0, 0, 1, 0, 0 },
-            { 0, 0, 1, 0, 0 },
-        };
-        attackPattern = Utils.RotateMatrix90Degrees(attackPattern);
         available = true;
+        SetAvailable();
+        healthDisplay.text = health.ToString();
+        attackDisplay.text = damage.ToString();
+    }
+
+    
+
+    public void SetAttackPattern(int[,] pattern) {
+        attackPattern = pattern;
+        attackPattern = Utils.RotateMatrix90Degrees(attackPattern);
     }
 
     public void MoveTo(int x, int y) {
@@ -35,17 +41,26 @@ public class Unit : MonoBehaviour {
     }
 
     public void Attack(Unit target) {
-        target.Destroy();
+        target.TakeDamage(damage);
+    }
+
+    public void TakeDamage(int dmg) {
+        health -= dmg;
+        if (health <= 0) {
+            DestroySelf();
+        }
+
+        healthDisplay.text = health.ToString();
     }
 
     public void SetAvailable() {
         available = true;
-        GetComponent<Renderer>().material = availableMaterial;
+        GetComponentInChildren<Renderer>().material = availableMaterial;
     }
-    
+
     public void SetUnavailable() {
         available = false;
-        GetComponent<Renderer>().material = unavailableMaterial;
+        GetComponentInChildren<Renderer>().material = unavailableMaterial;
     }
 
     public List<Tile> GetAttackableTiles() {
@@ -54,10 +69,31 @@ public class Unit : MonoBehaviour {
         List<(int, int)> targetCoordinates = Utils.MatrixMask(Grid.instance.grid, (currentTile.x, currentTile.y), attackPattern);
 
         foreach ((int, int) coordinate in targetCoordinates) {
-            attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
+            Unit u = Grid.instance.grid[coordinate.Item1, coordinate.Item2].unit;
+            if (u != null && u.owner != owner) {
+                attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
+            }
+            else if (u == null) {
+                attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
+            }
         }
 
         return attackable;
+    }
+
+    public List<Tile> GetMovableTiles() {
+        List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, moveRange);
+
+        List<Tile> toRemove = new List<Tile>();
+        foreach (Tile tile in reachable) {
+            if (tile.unit != null) {
+                toRemove.Add(tile);
+            }
+        }
+
+        reachable = reachable.Except(toRemove).ToList();
+
+        return reachable;
     }
 
     public List<AttackCommand> GetAvailableAttacks() {
@@ -75,7 +111,7 @@ public class Unit : MonoBehaviour {
     public List<MoveUnitCommand> GetAvailableMoves() {
         List<MoveUnitCommand> moves = new List<MoveUnitCommand>();
 
-        List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, range);
+        List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, moveRange);
 
 
         foreach (Tile tile in reachable) {
@@ -84,19 +120,13 @@ public class Unit : MonoBehaviour {
             if (tile.unit == null) {
                 moves.Add(new MoveUnitCommand(this, tile.x, tile.y));
             }
-            else {
-                //possible attacks
-                if (tile.unit.owner != owner) {
-                    //      moves.Add(new AttackCommand(this, tile.unit));
-                }
-            }
         }
 
 
         return moves;
     }
 
-    public void Destroy() {
+    public void DestroySelf() {
         EventManager.instance.UnitDestroyed(this);
         Destroy(gameObject);
     }
