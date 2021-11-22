@@ -1,7 +1,9 @@
+using UnityEngine;
+
 public class MoveUnitCommand : Command {
     Unit unit;
-    int x;
-    int y;
+    public int x;
+    public int y;
 
     public MoveUnitCommand(Unit unit, int x, int y) {
         this.unit = unit;
@@ -11,9 +13,16 @@ public class MoveUnitCommand : Command {
 
     public override void Execute() {
         unit.MoveTo(x, y);
+        unit.SetUnavailable();
     }
+
 
     public override string ToString() {
         return unit + " -> " + x + "," + y;
+    }
+
+    public override void DisplayCommand() {
+        Grid.instance.grid[x,y].DisplayMove();
+        //Grid.instance.grid[x,y].DisplayAttack();
     }
 }

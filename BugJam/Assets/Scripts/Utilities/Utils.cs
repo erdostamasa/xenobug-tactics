@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 public static class Utils {
     public static string MatrixToString<T>(T[,] matrix) {
@@ -71,5 +72,40 @@ public static class Utils {
         }
 
         return rotatedArr;
+    }
+
+    // returns coordinates from the original matrix where the mask is ==1
+    // needs the center of the mask matrix in original matrix coordinates
+    public static List<(int, int)> MatrixMask<T>(T[,] originalMatrix, (int, int) maskCenterCoords, int[,] mask) {
+        List<(int, int)> validCoordinates = new List<(int, int)>();
+
+        int maskHalfSize = mask.GetLength(0) / 2;
+        (int, int) start = (maskCenterCoords.Item1 - maskHalfSize, maskCenterCoords.Item2 - maskHalfSize);
+
+        int maskx = 0;
+        int masky = 0;
+        for (int x = start.Item1; x < start.Item1 + mask.GetLength(0); x++) {
+            for (int y = start.Item2; y < start.Item2 + mask.GetLength(1); y++) {
+                //original matrix has a valid coordinate here
+                //Debug.Log($"x:{x},y:{y},maskx:{maskx},masky:{masky} maskValue:{mask[maskx,masky]}");
+                if (x >= 0 && x < originalMatrix.GetLength(0) && y >= 0 && y < originalMatrix.GetLength(1)) {
+                    if (originalMatrix[x, y] != null) {
+                        //mask marks this value
+                        //Debug.Log($"VALID x:{x} y:{y}");
+                        if (mask[maskx, masky] == 1) {
+                            validCoordinates.Add((x, y));
+                        }
+                    }
+                }
+
+                masky++;
+            }
+
+            masky = 0;
+            maskx++;
+        }
+
+
+        return validCoordinates;
     }
 }

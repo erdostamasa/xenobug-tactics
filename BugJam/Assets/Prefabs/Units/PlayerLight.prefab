@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4790689714923897018}
   - component: {fileID: 4573042651893505761}
   m_Layer: 0
-  m_Name: PlayerUnit
+  m_Name: PlayerLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,3 +108,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa17a5dd8ff772f429e6dfd0bbed7053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentTile: {fileID: 0}
+  owner: 0
+  available: 0
+  availableMaterial: {fileID: 2100000, guid: fb41d809fb1828f4180b711709ea8e83, type: 2}
+  unavailableMaterial: {fileID: 2100000, guid: 842b5e7a721fa9c42bd42869565e7f1f, type: 2}
+  range: 1
+  health: 0
+  damage: 0

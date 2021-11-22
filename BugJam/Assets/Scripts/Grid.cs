@@ -38,19 +38,26 @@ public class Grid : MonoBehaviour {
     }
 
 
-    public Unit SpawnUnit(int x, int y, Transform prefab) {
+    public Unit SpawnUnit(int x, int y, Transform prefab, Unit.Owner owner) {
         Unit spawned = Instantiate(prefab, grid[x, y].unitPosition.position, prefab.rotation).GetComponent<Unit>();
         grid[x, y].unit = spawned;
         spawned.currentTile = grid[x, y];
+        spawned.owner = owner;
         return spawned;
     }
 
     // Return all tiles withing {range} steps
     public List<Tile> GetReachableInRange(Tile originTile, int distance) {
+        // Find tiles withing range
         List<Node> result = GetNeighboursRecursive(nodes[originTile.x, originTile.y], distance);
-
         result = result.Distinct().ToList();
-        
+
+        // Remove origin tile
+        if (result.Contains(nodes[originTile.x, originTile.y])) {
+            result.Remove(nodes[originTile.x, originTile.y]);
+        }
+
+        // Remove tiles that cant be reached    
         List<Node> toRemove = new List<Node>();
         foreach (Node node in result) {
             if (GetPath(originTile, node.tile) == null) {
@@ -60,9 +67,6 @@ public class Grid : MonoBehaviour {
 
         result = result.Except(toRemove).ToList();
 
-        if (result.Contains(nodes[originTile.x, originTile.y])) {
-            result.Remove(nodes[originTile.x, originTile.y]);
-        }
 
         List<Tile> tileResult = result.Select(n => n.tile).ToList();
         return tileResult;
@@ -302,10 +306,10 @@ public class Grid : MonoBehaviour {
                 if (selectedPrefab != null) {
                     Transform tile = Instantiate(selectedPrefab, new Vector3(x, 0, y), Quaternion.identity);
                     tile.name = x + "," + y;
-                    Transform display = Instantiate(coordTextPrefab, tile.position, coordTextPrefab.rotation);
-                    display.Translate(Vector3.forward * -0.13f, Space.Self);
-                    display.SetParent(GameObject.Find("CoordCanvas").transform);
-                    display.GetComponent<TextMeshProUGUI>().text = x + "," + y;
+                    // Transform display = Instantiate(coordTextPrefab, tile.position, coordTextPrefab.rotation);
+                    // display.Translate(Vector3.forward * -0.13f, Space.Self);
+                    // display.SetParent(GameObject.Find("CoordCanvas").transform);
+                    // display.GetComponent<TextMeshProUGUI>().text = x + "," + y;
                     tile.SetParent(transform);
 
                     Tile t = tile.GetComponent<Tile>();
