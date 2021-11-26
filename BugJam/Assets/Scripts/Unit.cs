@@ -26,7 +26,6 @@ public class Unit : MonoBehaviour {
         attackDisplay.text = damage.ToString();
     }
 
-    
 
     public void SetAttackPattern(int[,] pattern) {
         attackPattern = pattern;
@@ -38,6 +37,7 @@ public class Unit : MonoBehaviour {
         currentTile = Grid.instance.grid[x, y];
         currentTile.unit = this;
         transform.position = currentTile.unitPosition.position;
+        SetUnavailable();
     }
 
     public void Attack(Unit target) {
@@ -70,11 +70,19 @@ public class Unit : MonoBehaviour {
 
         foreach ((int, int) coordinate in targetCoordinates) {
             Unit u = Grid.instance.grid[coordinate.Item1, coordinate.Item2].unit;
-            if (u != null && u.owner != owner) {
-                attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
-            }
-            else if (u == null) {
-                attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
+            if ((u != null && u.owner != owner) || u == null) {
+                // check if target tile is visible
+                Vector3 start = currentTile.unitPosition.position;
+                Vector3 end = Grid.instance.grid[coordinate.Item1, coordinate.Item2].unitPosition.position;
+                float distance = (end - start).magnitude;
+                if (Physics.Raycast(start, (end - start).normalized, out var hit, distance, ~LayerMask.NameToLayer("Obstacle"))) {
+                    //obstacle detected, attack not possible
+                    //Debug.DrawLine(start, hit.point, Color.red);    
+                }
+                else {
+                    attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
+                    //Debug.DrawLine(start, end, Color.green);   
+                }
             }
         }
 
@@ -122,6 +130,7 @@ public class Unit : MonoBehaviour {
             }
         }
 
+        moves.Add(new MoveUnitCommand(this, currentTile.x, currentTile.y));
 
         return moves;
     }

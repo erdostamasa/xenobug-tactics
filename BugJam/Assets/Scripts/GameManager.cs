@@ -13,19 +13,46 @@ public class GameManager : MonoBehaviour {
     [SerializeField] LineRenderer line;
 
     [SerializeField] TurnDisplay turnDisplay;
-
+    [SerializeField] EndDisplay _endDisplay;
+    
     [Header("Units")]
-    [SerializeField] Transform playerHeavyPrefab;
-    [SerializeField] Transform playerLightPrefab;
-    [SerializeField] Transform enemyUnitPrefab;
+    public Transform playerHeavyPrefab;
+    public Transform playerLightPrefab;
+    public Transform enemyUnitPrefab;
 
 
-    UnitDescriptor enemy;
-    UnitDescriptor playerHeavy;
-    UnitDescriptor playerLight;
+    public UnitDescriptor enemy;
+    public UnitDescriptor playerHeavy;
+    public UnitDescriptor playerLight;
 
     void Awake() {
         instance = this;
+    }
+
+    void Start() {
+        SetupUnitTypes();
+
+        Application.targetFrameRate = 60;
+        //opponent = new RandomEnemyAI();
+        opponent = new SmartAI();
+
+        state = GameState.PLAYER_TURN;
+
+        EventManager.instance.onUnitDestroyed += RemoveUnit;
+
+        turnDisplay.PlayerTurn();
+
+        /*opponent.units.Add(Grid.instance.SpawnUnit(3, 6, enemy));
+        opponent.units.Add(Grid.instance.SpawnUnit(2, 6, enemy));
+        opponent.units.Add(Grid.instance.SpawnUnit(4, 6, enemy));
+
+        player.units.Add(Grid.instance.SpawnUnit(3, 0, playerHeavy));
+
+        player.units.Add(Grid.instance.SpawnUnit(4, 1, playerLight));*/
+
+
+        Grid.instance.GenerateGrid();
+        StartCoroutine(GameLoop());
     }
 
     public void DisplayLine(Tile from, Tile to, Color color) {
@@ -53,33 +80,10 @@ public class GameManager : MonoBehaviour {
         line.endColor = color;
         line.SetPosition(0, from.transform.position + new Vector3(0, line.transform.position.y, 0));
         line.SetPosition(1, to.transform.position + new Vector3(0, line.transform.position.y, 0));
-        
     }
 
     public void ResetLine() {
         line.positionCount = 0;
-    }
-
-    void Start() {
-        SetupUnitTypes();
-        Application.targetFrameRate = 60;
-        opponent = new RandomEnemyAI();
-        state = GameState.PLAYER_TURN;
-
-        EventManager.instance.onUnitDestroyed += RemoveUnit;
-
-        turnDisplay.PlayerTurn();
-
-        opponent.units.Add(Grid.instance.SpawnUnit(3, 6, enemy));
-        opponent.units.Add(Grid.instance.SpawnUnit(2, 6, enemy));
-        opponent.units.Add(Grid.instance.SpawnUnit(4, 6, enemy));
-
-        player.units.Add(Grid.instance.SpawnUnit(3, 0, playerHeavy));
-        
-        player.units.Add(Grid.instance.SpawnUnit(4, 1, playerLight));
-
-
-        StartCoroutine(GameLoop());
     }
 
     void RemoveUnit(Unit u) {
@@ -92,7 +96,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void SetupUnitTypes() {
-        int[,] pattern = new int[,] {
+        int[,] pattern = {
             { 0, 0, 1, 0, 0 },
             { 0, 0, 1, 0, 0 },
             { 1, 1, 0, 1, 1 },
@@ -101,7 +105,7 @@ public class GameManager : MonoBehaviour {
         };
         enemy = new UnitDescriptor(enemyUnitPrefab, Unit.Owner.ENEMY, pattern);
 
-        pattern = new int[,] {
+        pattern = new[,] {
             { 0, 0, 1, 0, 0 },
             { 0, 0, 1, 0, 0 },
             { 1, 1, 0, 1, 1 },
@@ -110,16 +114,30 @@ public class GameManager : MonoBehaviour {
         };
         playerHeavy = new UnitDescriptor(playerHeavyPrefab, Unit.Owner.PLAYER, pattern);
 
-        pattern = new int[,] {
-            { 1, 1, 1 },
-            { 1, 0, 1 },
-            { 1, 1, 1 }
+        pattern = new[,] {
+            { 1, 0, 1, 0, 1 },
+            { 0, 1, 1, 1, 0 },
+            { 1, 1, 0, 1, 1 },
+            { 0, 1, 1, 1, 0 },
+            { 1, 0, 1, 0, 1 },
         };
         playerLight = new UnitDescriptor(playerLightPrefab, Unit.Owner.PLAYER, pattern);
     }
 
     IEnumerator GameLoop() {
         while (true) {
+            if (opponent.units.Count == 0) {
+                _endDisplay.gameObject.SetActive(true);
+                _endDisplay.GameWon();
+                state = GameState.GAME_ENDED;
+            }
+
+            if (player.units.Count == 0) {
+                _endDisplay.gameObject.SetActive(true);
+                _endDisplay.GameLost();
+                state = GameState.GAME_ENDED;
+            }
+            
             if (state == GameState.ENEMY_TURN) {
                 turnDisplay.EnemyTurn();
                 yield return new WaitForSeconds(0.5f);
@@ -144,6 +162,7 @@ public class GameManager : MonoBehaviour {
 
     public enum GameState {
         PLAYER_TURN,
-        ENEMY_TURN
+        ENEMY_TURN,
+        GAME_ENDED
     }
 }

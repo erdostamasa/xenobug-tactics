@@ -1,7 +1,9 @@
 using UnityEngine;
 
 public class MoveUnitCommand : Command {
-    Unit unit;
+    public Unit unit;
+    public int xBefore;
+    public int yBefore;
     public int x;
     public int y;
 
@@ -12,17 +14,21 @@ public class MoveUnitCommand : Command {
     }
 
     public override void Execute() {
+        xBefore = unit.currentTile.x;
+        yBefore = unit.currentTile.y;
+
         unit.MoveTo(x, y);
-        unit.SetUnavailable();
     }
 
+    public void Undo() {
+        unit.MoveTo(xBefore, yBefore);
+    }
 
     public override string ToString() {
         return unit + " -> " + x + "," + y;
     }
 
     public override void DisplayCommand() {
-        Grid.instance.grid[x,y].DisplayMove();
-        //Grid.instance.grid[x,y].DisplayAttack();
+        Grid.instance.grid[x, y].DisplayMove();
     }
 }

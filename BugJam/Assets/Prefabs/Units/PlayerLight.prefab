@@ -52,7 +52,7 @@ MonoBehaviour:
   unavailableMaterial: {fileID: 2100000, guid: 842b5e7a721fa9c42bd42869565e7f1f, type: 2}
   healthDisplay: {fileID: 3911611457311777466}
   attackDisplay: {fileID: 4274164070105878055}
-  moveRange: 3
+  moveRange: 4
   health: 2
   damage: 1
 --- !u!1 &2312367433803963233
@@ -343,7 +343,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 20
   m_TargetDisplay: 0
 --- !u!114 &8288315025858542156
 MonoBehaviour:

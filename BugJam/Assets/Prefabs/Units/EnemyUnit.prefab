@@ -59,7 +59,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 20
   m_TargetDisplay: 0
 --- !u!114 &1225710623445763546
 MonoBehaviour:
@@ -383,7 +383,7 @@ MonoBehaviour:
   healthDisplay: {fileID: 4181624782937685168}
   attackDisplay: {fileID: 3210217388696641092}
   moveRange: 2
-  health: 1
+  health: 2
   damage: 1
 --- !u!1 &4976939730566836157
 GameObject:

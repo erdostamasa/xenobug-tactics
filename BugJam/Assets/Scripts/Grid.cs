@@ -17,7 +17,7 @@ public class Grid : MonoBehaviour {
     [SerializeField] Transform backgroundTransform;
     [SerializeField] Transform coordTextPrefab;
     [SerializeField] TextAsset mapFile;
-
+    
 
     public Tile[,] grid;
     Node[,] nodes;
@@ -28,23 +28,57 @@ public class Grid : MonoBehaviour {
     }
 
     void Start() {
-        GenerateGrid();
-        BuildNodeArray();
+        mapFile = LevelHolder.instance.GetLevelText();
+        //GenerateGrid();
+
 
         // Setup background cube
-        float pos = (grid.GetLength(0) % 2 == 0) ? grid.GetLength(0) / 2f - 0.5f : grid.GetLength(0) / 2;
-        backgroundTransform.position = new Vector3(pos, -0.41f, pos);
-        backgroundTransform.localScale = new Vector3(grid.GetLength(0), 1, grid.GetLength(0));
     }
 
 
-    public Unit SpawnUnit(int x, int y, UnitDescriptor unit) {
+    public void SpawnUnit(int x, int y, UnitDescriptor unit) {
         Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
         grid[x, y].unit = spawned;
         spawned.currentTile = grid[x, y];
         spawned.owner = unit.owner;
         spawned.SetAttackPattern(unit.attackPattern);
-        return spawned;
+        if (unit.owner == Unit.Owner.ENEMY) {
+            GameManager.instance.opponent.units.Add(spawned);
+        }
+        else if (unit.owner == Unit.Owner.PLAYER) {
+            GameManager.instance.player.units.Add(spawned);
+        }
+    }
+
+    public void SpawnUnitWithTile(int x, int y, UnitDescriptor unit) {
+        // spawn tile
+        Transform tile = Instantiate(tilePrefab, new Vector3(x, 0, y), Quaternion.identity);
+        tile.name = x + "," + y;
+        // Transform display = Instantiate(coordTextPrefab, tile.position, coordTextPrefab.rotation);
+        // display.Translate(Vector3.forward * -0.13f, Space.Self);
+        // display.SetParent(GameObject.Find("CoordCanvas").transform);
+        // display.GetComponent<TextMeshProUGUI>().text = x + "," + y;
+        tile.SetParent(transform);
+
+        Tile t = tile.GetComponent<Tile>();
+        t.x = x;
+        t.y = y;
+        t.selectable = true;
+        t.walkable = true;
+        grid[x, y] = t;
+
+        //spawn unit
+        Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
+        grid[x, y].unit = spawned;
+        spawned.currentTile = grid[x, y];
+        spawned.owner = unit.owner;
+        spawned.SetAttackPattern(unit.attackPattern);
+        if (unit.owner == Unit.Owner.ENEMY) {
+            GameManager.instance.opponent.units.Add(spawned);
+        }
+        else if (unit.owner == Unit.Owner.PLAYER) {
+            GameManager.instance.player.units.Add(spawned);
+        }
     }
 
     // Return all tiles withing {range} steps
@@ -260,7 +294,7 @@ public class Grid : MonoBehaviour {
         }
     }
 
-    void GenerateGrid() {
+    public void GenerateGrid() {
         // Read map file
         int fileMapSize = mapFile.text.Split('\n').Length;
         string[,] mapStringArray = new string[fileMapSize, fileMapSize];
@@ -289,6 +323,7 @@ public class Grid : MonoBehaviour {
                 Transform selectedPrefab = null;
                 bool selectable = false;
                 bool walkable = false;
+                bool unitSpawned = false;
                 switch (mapStringArray[x, y]) {
                     case "o":
                         selectedPrefab = tilePrefab;
@@ -300,12 +335,20 @@ public class Grid : MonoBehaviour {
                         break;
                     case "x":
                         break;
+                    case "l":
+                        unitSpawned = true;
+                        SpawnUnitWithTile(x, y, GameManager.instance.playerLight);
+                        break;
+                    case "b":
+                        unitSpawned = true;
+                        SpawnUnitWithTile(x, y, GameManager.instance.enemy);
+                        break;
                     default:
                         Debug.LogError("WRONG INPUT STRING");
                         break;
                 }
 
-                if (selectedPrefab != null) {
+                if (selectedPrefab != null && !unitSpawned) {
                     Transform tile = Instantiate(selectedPrefab, new Vector3(x, 0, y), Quaternion.identity);
                     tile.name = x + "," + y;
                     // Transform display = Instantiate(coordTextPrefab, tile.position, coordTextPrefab.rotation);
@@ -358,6 +401,11 @@ public class Grid : MonoBehaviour {
                 grid[x, y].neighbours = neighbours;
             }
         }
+
+        BuildNodeArray();
+        float pos = (grid.GetLength(0) % 2 == 0) ? grid.GetLength(0) / 2f - 0.5f : grid.GetLength(0) / 2;
+        backgroundTransform.position = new Vector3(pos, -0.41f, pos);
+        backgroundTransform.localScale = new Vector3(grid.GetLength(0), 1, grid.GetLength(0));
     }
 
     // Node class used for pathfinding

@@ -1,7 +1,7 @@
-o o o o o o x
-o o o o o x x
+o b o o o o x
+o b b b o x x
 m o o o o x m
 m o o o o x m
 m m o o o x x
-x m o o o o x
-x m m o o o o
+x m o o o l x
+x m m l l o o
