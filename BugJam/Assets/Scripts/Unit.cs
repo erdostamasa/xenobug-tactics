@@ -19,6 +19,9 @@ public class Unit : MonoBehaviour {
     public int health;
     public int damage;
 
+    public event Action<int> onHealthChanged;
+    
+    
     void Start() {
         available = true;
         SetAvailable();
@@ -46,6 +49,7 @@ public class Unit : MonoBehaviour {
 
     public void TakeDamage(int dmg) {
         health -= dmg;
+        onHealthChanged?.Invoke(health);
         if (health <= 0) {
             DestroySelf();
         }

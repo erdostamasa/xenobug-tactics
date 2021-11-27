@@ -17,7 +17,9 @@ public class Grid : MonoBehaviour {
     [SerializeField] Transform backgroundTransform;
     [SerializeField] Transform coordTextPrefab;
     [SerializeField] TextAsset mapFile;
-    
+
+
+    [SerializeField] TextAsset defaultMap;
 
     public Tile[,] grid;
     Node[,] nodes;
@@ -28,7 +30,12 @@ public class Grid : MonoBehaviour {
     }
 
     void Start() {
-        mapFile = LevelHolder.instance.GetLevelText();
+        if (LevelHolder.instance == null) {
+            mapFile = defaultMap;
+        }
+        else {
+            mapFile = LevelHolder.instance.GetLevelText();
+        }
         //GenerateGrid();
 
 
@@ -38,6 +45,7 @@ public class Grid : MonoBehaviour {
 
     public void SpawnUnit(int x, int y, UnitDescriptor unit) {
         Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
+        spawned.transform.SetParent(transform);
         grid[x, y].unit = spawned;
         spawned.currentTile = grid[x, y];
         spawned.owner = unit.owner;
@@ -48,6 +56,8 @@ public class Grid : MonoBehaviour {
         else if (unit.owner == Unit.Owner.PLAYER) {
             GameManager.instance.player.units.Add(spawned);
         }
+
+        EventManager.instance.UnitCreated(spawned);
     }
 
     public void SpawnUnitWithTile(int x, int y, UnitDescriptor unit) {
@@ -69,6 +79,7 @@ public class Grid : MonoBehaviour {
 
         //spawn unit
         Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
+        spawned.transform.SetParent(transform);
         grid[x, y].unit = spawned;
         spawned.currentTile = grid[x, y];
         spawned.owner = unit.owner;
@@ -79,6 +90,8 @@ public class Grid : MonoBehaviour {
         else if (unit.owner == Unit.Owner.PLAYER) {
             GameManager.instance.player.units.Add(spawned);
         }
+
+        EventManager.instance.UnitCreated(spawned);
     }
 
     // Return all tiles withing {range} steps

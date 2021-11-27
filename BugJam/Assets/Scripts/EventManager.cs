@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EventManager : MonoBehaviour {
-
     public static EventManager instance;
 
     void Awake() {
         instance = this;
+    }
+
+    public event Action<Unit> onUnitCreated;
+    public void UnitCreated(Unit unit) {
+        onUnitCreated?.Invoke(unit);
     }
 
     public event Action<Unit> onUnitDestroyed;

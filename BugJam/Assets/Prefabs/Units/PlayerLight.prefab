@@ -52,9 +52,9 @@ MonoBehaviour:
   unavailableMaterial: {fileID: 2100000, guid: 842b5e7a721fa9c42bd42869565e7f1f, type: 2}
   healthDisplay: {fileID: 3911611457311777466}
   attackDisplay: {fileID: 4274164070105878055}
-  moveRange: 4
-  health: 2
-  damage: 1
+  moveRange: 3
+  health: 4
+  damage: 2
 --- !u!1 &2312367433803963233
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,7 +302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2601382326477285863
 RectTransform:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField] TurnDisplay turnDisplay;
     [SerializeField] EndDisplay _endDisplay;
+    [SerializeField] GameObject pauseMenu;
     
     [Header("Units")]
     public Transform playerHeavyPrefab;
@@ -30,6 +31,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void Start() {
+        Time.timeScale = 1;
         SetupUnitTypes();
 
         Application.targetFrameRate = 60;
@@ -42,17 +44,15 @@ public class GameManager : MonoBehaviour {
 
         turnDisplay.PlayerTurn();
 
-        /*opponent.units.Add(Grid.instance.SpawnUnit(3, 6, enemy));
-        opponent.units.Add(Grid.instance.SpawnUnit(2, 6, enemy));
-        opponent.units.Add(Grid.instance.SpawnUnit(4, 6, enemy));
-
-        player.units.Add(Grid.instance.SpawnUnit(3, 0, playerHeavy));
-
-        player.units.Add(Grid.instance.SpawnUnit(4, 1, playerLight));*/
-
-
         Grid.instance.GenerateGrid();
         StartCoroutine(GameLoop());
+    }
+
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)) {
+            Time.timeScale = 0;
+            pauseMenu.SetActive(true);
+        }
     }
 
     public void DisplayLine(Tile from, Tile to, Color color) {
