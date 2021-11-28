@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour {
                         foreach (MoveUnitCommand command in selectedCommands) {
                             //found clicked tile command
                             if (command.x == tileUnderMouse.x && command.y == tileUnderMouse.y) {
-                                command.Execute();
+                                command.ExecuteAnimate();
 
                                 ResetSelection();
                             }

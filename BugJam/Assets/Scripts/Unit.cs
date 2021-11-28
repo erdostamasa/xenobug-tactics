@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -21,8 +22,11 @@ public class Unit : MonoBehaviour {
     public int damage;
 
     public event Action<int> onHealthChanged;
-    
-    
+
+    float moveDuration = 0.3f;
+    float rotateDuration = 0.2f;
+
+
     void Start() {
         available = true;
         SetAvailable();
@@ -37,12 +41,70 @@ public class Unit : MonoBehaviour {
     }
 
     public void MoveTo(int x, int y) {
+        Vector3 start = currentTile.transform.position;
+
         currentTile.unit = null;
         currentTile = Grid.instance.grid[x, y];
         currentTile.unit = this;
         transform.position = currentTile.unitPosition.position;
+
+
+        Vector3 end = currentTile.transform.position;
+
+        if (start != end) {
+            Vector3 dir = (end - start).normalized;
+            transform.forward = dir;
+        }
+
+
         SetUnavailable();
     }
+
+    public async void MoveAnimate(int x, int y) {
+        Vector3 start = currentTile.transform.position;
+        Tile startTile = currentTile;
+        List<Tile> path = Grid.instance.GetPath(startTile, Grid.instance.grid[x, y]);
+
+        currentTile.unit = null;
+        currentTile = Grid.instance.grid[x, y];
+        currentTile.unit = this;
+        //transform.position = currentTile.unitPosition.position;
+
+        Sequence moves = DOTween.Sequence();
+
+
+        Vector3 beforePos = startTile.unitPosition.position;
+        if (path.Count > 1) {
+            for (int i = path.Count - 1; i > 0; i--) {
+                Vector3 dir = (path[i].unitPosition.position - beforePos);
+
+                //moves.Append(DOTween.To(() => transform.forward, x => transform.forward = x, dir.normalized, 1f));
+                moves.Append(transform.DORotate(Quaternion.LookRotation(dir, Vector3.up).eulerAngles, rotateDuration));
+                moves.Append(transform.DOMove(path[i].unitPosition.position, moveDuration));
+                beforePos = path[i].unitPosition.position;
+            }
+        }
+
+        Vector3 dir2 = (currentTile.unitPosition.position - beforePos);
+        Vector3 end = currentTile.transform.position;
+        if (start != end) {
+            moves.Append(transform.DORotate(Quaternion.LookRotation(dir2, Vector3.up).eulerAngles, rotateDuration));
+            moves.Append(transform.DOMove(currentTile.unitPosition.position, moveDuration));
+        }
+
+
+        //transform.DOMove(currentTile.unitPosition.position, 3f);
+
+
+        // if (start != end) {
+        //     Vector3 dir = (end - start).normalized;
+        //     transform.forward = dir;
+        // }
+
+
+        SetUnavailable();
+    }
+
 
     public void Attack(Unit target) {
         target.TakeDamage(damage);
@@ -60,12 +122,12 @@ public class Unit : MonoBehaviour {
 
     public void SetAvailable() {
         available = true;
-        GetComponentInChildren<Renderer>().material = availableMaterial;
+        //GetComponentInChildren<Renderer>().material = availableMaterial;
     }
 
     public void SetUnavailable() {
         available = false;
-        GetComponentInChildren<Renderer>().material = unavailableMaterial;
+        //GetComponentInChildren<Renderer>().material = unavailableMaterial;
     }
 
     public List<Tile> GetAttackableTiles() {

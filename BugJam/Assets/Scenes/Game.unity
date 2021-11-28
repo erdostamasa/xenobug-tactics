@@ -2551,7 +2551,7 @@ MonoBehaviour:
   backgroundTransform: {fileID: 1338657110}
   coordTextPrefab: {fileID: 7546044722346756832, guid: 7bb2081e5034e4a49b9bbb3e6826e7f4, type: 3}
   mapFile: {fileID: 4900000, guid: b07be396fcd935941ad4623ad2730566, type: 3}
-  defaultMap: {fileID: 4900000, guid: 0143900cbecd0ba4591bc78a8b56682c, type: 3}
+  defaultMap: {fileID: 4900000, guid: b07be396fcd935941ad4623ad2730566, type: 3}
 --- !u!4 &999717307
 Transform:
   m_ObjectHideFlags: 0

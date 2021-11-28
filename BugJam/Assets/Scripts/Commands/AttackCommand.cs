@@ -12,6 +12,10 @@ public class AttackCommand : Command {
     }
 
 
+    public override void ExecuteAnimate() {
+        throw new System.NotImplementedException();
+    }
+
     public AttackCommand(Unit unit, Unit target) {
         this.unit = unit;
         this.target = target;
