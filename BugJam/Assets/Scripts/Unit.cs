@@ -14,6 +14,7 @@ public class Unit : MonoBehaviour {
     [SerializeField] Material unavailableMaterial;
     [SerializeField] TextMeshProUGUI healthDisplay;
     [SerializeField] TextMeshProUGUI attackDisplay;
+    public float uiHeightOffset;
 
     public int moveRange = 1;
     public int health;

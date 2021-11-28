@@ -52,9 +52,10 @@ MonoBehaviour:
   unavailableMaterial: {fileID: 2100000, guid: 842b5e7a721fa9c42bd42869565e7f1f, type: 2}
   healthDisplay: {fileID: 3911611457311777466}
   attackDisplay: {fileID: 4274164070105878055}
-  moveRange: 3
-  health: 4
-  damage: 2
+  uiHeightOffset: 0.6
+  moveRange: 2
+  health: 3
+  damage: 1
 --- !u!1 &2312367433803963233
 GameObject:
   m_ObjectHideFlags: 0

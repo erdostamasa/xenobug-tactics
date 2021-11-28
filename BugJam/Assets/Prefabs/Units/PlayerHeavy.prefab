@@ -186,6 +186,7 @@ MonoBehaviour:
   unavailableMaterial: {fileID: 2100000, guid: 842b5e7a721fa9c42bd42869565e7f1f, type: 2}
   healthDisplay: {fileID: 881801064770916907}
   attackDisplay: {fileID: 5463412189744153723}
+  uiHeightOffset: 0.6
   moveRange: 1
   health: 5
   damage: 2

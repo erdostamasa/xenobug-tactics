@@ -10,6 +10,11 @@ public class EventManager : MonoBehaviour {
         instance = this;
     }
 
+    public event Action onGameEnded;
+    public void GameEnded() {
+        onGameEnded?.Invoke();
+    }
+    
     public event Action<Unit> onUnitCreated;
     public void UnitCreated(Unit unit) {
         onUnitCreated?.Invoke(unit);

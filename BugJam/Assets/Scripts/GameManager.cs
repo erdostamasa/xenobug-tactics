@@ -15,16 +15,18 @@ public class GameManager : MonoBehaviour {
     [SerializeField] TurnDisplay turnDisplay;
     [SerializeField] EndDisplay _endDisplay;
     [SerializeField] GameObject pauseMenu;
-    
+
     [Header("Units")]
-    public Transform playerHeavyPrefab;
+    public Transform enemyLightPrefab;
+    public Transform enemySniperPrefab;
     public Transform playerLightPrefab;
-    public Transform enemyUnitPrefab;
+    public Transform playerHeavyPrefab;
 
 
-    public UnitDescriptor enemy;
-    public UnitDescriptor playerHeavy;
+    public UnitDescriptor enemyLight;
+    public UnitDescriptor enemySniper;
     public UnitDescriptor playerLight;
+    public UnitDescriptor playerHeavy;
 
     void Awake() {
         instance = this;
@@ -103,25 +105,36 @@ public class GameManager : MonoBehaviour {
             { 0, 0, 1, 0, 0 },
             { 0, 0, 1, 0, 0 },
         };
-        enemy = new UnitDescriptor(enemyUnitPrefab, Unit.Owner.ENEMY, pattern);
+        enemyLight = new UnitDescriptor(enemyLightPrefab, Unit.Owner.ENEMY, pattern);
+        
+        pattern = new[,] {
+            { 1, 1, 1, 1, 1 },
+            { 1, 0, 0, 0, 1 },
+            { 1, 0, 0, 0, 1 },
+            { 1, 0, 0, 0, 1 },
+            { 1, 1, 1, 1, 1 },
+        };
+        enemySniper = new UnitDescriptor(enemySniperPrefab, Unit.Owner.ENEMY, pattern);
+
 
         pattern = new[,] {
             { 0, 0, 1, 0, 0 },
             { 0, 0, 1, 0, 0 },
             { 1, 1, 0, 1, 1 },
             { 0, 0, 1, 0, 0 },
+            { 0, 0, 1, 0, 0 },
+        };
+        playerLight = new UnitDescriptor(playerLightPrefab, Unit.Owner.PLAYER, pattern);
+
+        pattern = new[,] {
+            { 0, 0, 1, 0, 0 },
+            { 0, 1, 1, 1, 0 },
+            { 1, 1, 0, 1, 1 },
+            { 0, 1, 1, 1, 0 },
             { 0, 0, 1, 0, 0 },
         };
         playerHeavy = new UnitDescriptor(playerHeavyPrefab, Unit.Owner.PLAYER, pattern);
-
-        pattern = new[,] {
-            { 1, 0, 1, 0, 1 },
-            { 0, 1, 1, 1, 0 },
-            { 1, 1, 0, 1, 1 },
-            { 0, 1, 1, 1, 0 },
-            { 1, 0, 1, 0, 1 },
-        };
-        playerLight = new UnitDescriptor(playerLightPrefab, Unit.Owner.PLAYER, pattern);
+        
     }
 
     IEnumerator GameLoop() {
@@ -130,14 +143,16 @@ public class GameManager : MonoBehaviour {
                 _endDisplay.gameObject.SetActive(true);
                 _endDisplay.GameWon();
                 state = GameState.GAME_ENDED;
+                EventManager.instance.GameEnded();
             }
 
             if (player.units.Count == 0) {
                 _endDisplay.gameObject.SetActive(true);
                 _endDisplay.GameLost();
                 state = GameState.GAME_ENDED;
+                EventManager.instance.GameEnded();
             }
-            
+
             if (state == GameState.ENEMY_TURN) {
                 turnDisplay.EnemyTurn();
                 yield return new WaitForSeconds(0.5f);

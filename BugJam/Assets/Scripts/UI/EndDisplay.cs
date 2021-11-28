@@ -7,21 +7,28 @@ public class EndDisplay : MonoBehaviour {
     [SerializeField] GameObject wonText;
     [SerializeField] GameObject lostText;
     [SerializeField] GameObject turnButton;
-    
-    
+    [SerializeField] List<GameObject> toDisable;
+
+
     public void GameWon() {
         wonText.SetActive(true);
         lostText.SetActive(false);
-        turnButton.SetActive(false);
+        Initialize();
     }
 
     public void GameLost() {
         wonText.SetActive(false);
         lostText.SetActive(true);
-        turnButton.SetActive(false);
+        Initialize();
     }
-    
-    
+
+    public void Initialize() {
+        turnButton.SetActive(false);
+        foreach (GameObject o in toDisable) {
+            o.SetActive(false);
+        }
+    }
+
 
     public void Restart() {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

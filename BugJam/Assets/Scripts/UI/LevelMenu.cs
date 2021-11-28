@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelMenu : MonoBehaviour {
-    
     [SerializeField] Transform levelGrid;
     [SerializeField] Transform buttonPrefab;
 
 
-    public void SetupLevels() {
+    public IEnumerator SetupLevels() {
         //delete all children
         int count = levelGrid.childCount;
         for (int i = 0; i < count; i++) {
@@ -23,7 +23,10 @@ public class LevelMenu : MonoBehaviour {
             button.GetComponent<LevelButton>().levelName = textAsset.name;
             button.GetComponent<LevelButton>().BindLevel();
             button.GetComponentInChildren<TextMeshProUGUI>().text = textAsset.name;
+            button.GetComponent<RectTransform>().localScale = Vector3.one;
         }
-        
+
+
+        yield return null;
     }
 }

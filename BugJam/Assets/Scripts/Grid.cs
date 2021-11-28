@@ -352,9 +352,17 @@ public class Grid : MonoBehaviour {
                         unitSpawned = true;
                         SpawnUnitWithTile(x, y, GameManager.instance.playerLight);
                         break;
+                    case "h":
+                        unitSpawned = true;
+                        SpawnUnitWithTile(x, y, GameManager.instance.playerHeavy);
+                        break;
                     case "b":
                         unitSpawned = true;
-                        SpawnUnitWithTile(x, y, GameManager.instance.enemy);
+                        SpawnUnitWithTile(x, y, GameManager.instance.enemyLight);
+                        break;
+                    case "s":
+                        unitSpawned = true;
+                        SpawnUnitWithTile(x, y, GameManager.instance.enemySniper);
                         break;
                     default:
                         Debug.LogError("WRONG INPUT STRING");

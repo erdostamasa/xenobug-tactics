@@ -341,7 +341,7 @@ GameObject:
   - component: {fileID: 122563232947507523}
   - component: {fileID: 2716418062071389604}
   m_Layer: 0
-  m_Name: EnemyUnit
+  m_Name: enemyLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -382,8 +382,9 @@ MonoBehaviour:
   unavailableMaterial: {fileID: 2100000, guid: a3c0f254df76cb34eb32872073d25ccf, type: 2}
   healthDisplay: {fileID: 4181624782937685168}
   attackDisplay: {fileID: 3210217388696641092}
+  uiHeightOffset: 0.6
   moveRange: 3
-  health: 5
+  health: 2
   damage: 1
 --- !u!1 &4976939730566836157
 GameObject:

@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
     [SerializeField] Transform cameraTransform;
+    [SerializeField] Transform groundTransform;
+
 
     [SerializeField] float movementSpeed;
     [SerializeField] float movementTime;
@@ -18,21 +21,45 @@ public class CameraController : MonoBehaviour {
     [SerializeField] Quaternion newRotation;
     [SerializeField] Vector3 newZoom;
 
+    [Header("Game end setting")]
+    [SerializeField] float orbitDuration = 10f;
+    [SerializeField] float snapDuration = 3f;
+    [SerializeField] float zoomDuration = 4f;
+    [SerializeField] Vector3 endZoom;
+
     public Vector3 dragStartPosition;
     public Vector3 dragCurrentPosition;
     public Vector3 rotateStartPosition;
     public Vector3 rotateCurrentPosition;
 
+    bool gameEnded = false;
+
+
+    void Awake() {
+        EventManager.instance.onGameEnded += GameEnded;
+    }
 
     void Start() {
+        transform.position = groundTransform.position;
         newPosition = transform.position;
         newRotation = transform.rotation;
         newZoom = cameraTransform.localPosition;
     }
 
+    public void GameEnded() {
+        gameEnded = true;
+        transform.DOMove(groundTransform.position, snapDuration).SetEase(Ease.OutQuart);
+        //transform.DOLocalRotate(new Vector3(0, 360, 0), 1, RotateMode.FastBeyond360).SetLoops(-1);
+        transform.DORotate(new Vector3(0, -360, 0), orbitDuration, RotateMode.LocalAxisAdd).SetLoops(-1, LoopType.Incremental);
+        cameraTransform.DOLocalMove(endZoom, zoomDuration).SetEase(Ease.OutQuart);
+    }
+
+
     void Update() {
-        HandleMouseInput();
-        HandleKeyboardInput();
+        if (!gameEnded) {
+            HandleMouseInput();
+            HandleKeyboardInput();
+        }
     }
 
     void HandleMouseInput() {
