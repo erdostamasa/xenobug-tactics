@@ -13,7 +13,15 @@ public class AttackCommand : Command {
 
 
     public override void ExecuteAnimate() {
-        throw new System.NotImplementedException();
+        // LaserEnemy e = (LaserEnemy)unit;
+        // if (e != null) {
+        //     e.AttackAnimate(target);
+        // }
+        // else {
+        unit.AttackAnimate(target);
+        // }
+
+        unit.SetUnavailable();
     }
 
     public AttackCommand(Unit unit, Unit target) {

@@ -31,6 +31,7 @@ public class Grid : MonoBehaviour {
 
     void Start() {
         if (LevelHolder.instance == null) {
+            Debug.LogWarning("USING DEFAULT MAP");
             mapFile = defaultMap;
         }
         else {
@@ -46,7 +47,7 @@ public class Grid : MonoBehaviour {
     public void SpawnUnit(int x, int y, UnitDescriptor unit) {
         Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
         spawned.transform.SetParent(transform);
-        grid[x, y].unit = spawned;
+        grid[x, y].Unit = spawned;
         spawned.currentTile = grid[x, y];
         spawned.owner = unit.owner;
         spawned.SetAttackPattern(unit.attackPattern);
@@ -80,12 +81,14 @@ public class Grid : MonoBehaviour {
         //spawn unit
         Unit spawned = Instantiate(unit.unitPrefab, grid[x, y].unitPosition.position, unit.unitPrefab.rotation).GetComponent<Unit>();
         spawned.transform.SetParent(transform);
-        grid[x, y].unit = spawned;
+        grid[x, y].Unit = spawned;
         spawned.currentTile = grid[x, y];
         spawned.owner = unit.owner;
         spawned.SetAttackPattern(unit.attackPattern);
+        spawned.SetAvailable();
         if (unit.owner == Unit.Owner.ENEMY) {
             GameManager.instance.opponent.units.Add(spawned);
+            spawned.transform.Rotate(Vector3.up, 180);
         }
         else if (unit.owner == Unit.Owner.PLAYER) {
             GameManager.instance.player.units.Add(spawned);
@@ -160,7 +163,7 @@ public class Grid : MonoBehaviour {
         foreach ((int, int) coord in coords) {
             if (nodes[coord.Item1, coord.Item2] == null) continue;
             Node c = nodes[coord.Item1, coord.Item2];
-            if (!neighbours.Contains(c) && c.tile.walkable && c.tile.unit == null) {
+            if (!neighbours.Contains(c) && c.tile.walkable && c.tile.Unit == null) {
                 neighbours.Add(c);
             }
         }
@@ -235,7 +238,7 @@ public class Grid : MonoBehaviour {
 
 
             foreach (Node neighbour in current.neighbours) {
-                if (!processed.Contains(neighbour) && neighbour.tile.walkable && neighbour.tile.unit == null) {
+                if (!processed.Contains(neighbour) && neighbour.tile.walkable && neighbour.tile.Unit == null) {
                     bool inSearch = toSearch.Contains(neighbour);
 
                     float costToNeighbour = current.originDistance + 1;

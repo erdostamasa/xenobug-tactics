@@ -1,0 +1,7 @@
+o s s b s s x
+o o b b b x x
+o o o o o x m
+o o o o o x m
+o o o h o o x
+o o l h l o o
+o o l o l o o

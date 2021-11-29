@@ -29,6 +29,15 @@ public class EndDisplay : MonoBehaviour {
         }
     }
 
+    public void SelectNextLevel() {
+        if (LevelHolder.instance.SelectNextLevel()) {
+            SceneManager.LoadScene(1);
+        }
+        else {
+            SceneManager.LoadScene(0);
+        }
+    }
+
 
     public void Restart() {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

@@ -36,22 +36,26 @@ public class PlayerController : MonoBehaviour {
 
         UpdateMouseInput();
 
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            EndTurn();
+        }
+
 
         //click
         if (Input.GetMouseButtonDown(0)) {
             //clicked on a valid tile
             if (tileUnderMouse != null && tileUnderMouse.walkable) {
                 //clicked on a unit
-                if (tileUnderMouse.unit != null) {
+                if (tileUnderMouse.Unit != null) {
                     //clicked on own unit
-                    if (units.Contains(tileUnderMouse.unit)) {
+                    if (units.Contains(tileUnderMouse.Unit)) {
                         if (selected != null) {
                             ResetSelection();
                         }
-                        else if (tileUnderMouse.unit.available) {
+                        else if (tileUnderMouse.Unit.available) {
                             ResetSelection();
                             //select unit
-                            selected = tileUnderMouse.unit;
+                            selected = tileUnderMouse.Unit;
                             //display range
                             selectedCommands = selected.GetAvailableMoves();
                             foreach (MoveUnitCommand command in selectedCommands) {
@@ -70,8 +74,8 @@ public class PlayerController : MonoBehaviour {
                             var possibleAttacks = selected.GetAvailableAttacks();
                             //Debug.Log(possibleAttacks.Count);
                             foreach (AttackCommand possibleAttack in possibleAttacks) {
-                                if (possibleAttack.target == tileUnderMouse.unit) {
-                                    possibleAttack.Execute();
+                                if (possibleAttack.target == tileUnderMouse.Unit) {
+                                    possibleAttack.ExecuteAnimate();
 
                                     ResetSelection();
                                 }
@@ -80,11 +84,11 @@ public class PlayerController : MonoBehaviour {
                         else {
                             ResetSelection();
                             //display possible enemy moves
-                            foreach (MoveUnitCommand command in tileUnderMouse.unit.GetAvailableMoves()) {
+                            foreach (MoveUnitCommand command in tileUnderMouse.Unit.GetAvailableMoves()) {
                                 command.DisplayCommand();
                             }
 
-                            foreach (Tile tile in tileUnderMouse.unit.GetAttackableTiles()) {
+                            foreach (Tile tile in tileUnderMouse.Unit.GetAttackableTiles()) {
                                 tile.DisplayAttack();
                             }
                         }
@@ -113,7 +117,7 @@ public class PlayerController : MonoBehaviour {
 
 
         GameManager.instance.ResetLine();
-        if (selected != null && tileUnderMouse != null && tileUnderMouse.unit != selected) {
+        if (selected != null && tileUnderMouse != null && tileUnderMouse.Unit != selected) {
             //check if tile is in movement range
             if (selected.GetMovableTiles().Contains(tileUnderMouse)) {
                 //check if selected can reach tile
@@ -144,7 +148,7 @@ public class PlayerController : MonoBehaviour {
 
     void ResetGridDisplay() {
         foreach (Tile tile in Grid.instance.grid) {
-            if (tile != null && tile.walkable) {
+            if (tile != null) {
                 tile.ClearDisplays();
             }
         }

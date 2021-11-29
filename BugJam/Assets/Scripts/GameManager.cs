@@ -40,13 +40,13 @@ public class GameManager : MonoBehaviour {
         //opponent = new RandomEnemyAI();
         opponent = new SmartAI();
 
-        state = GameState.PLAYER_TURN;
 
         EventManager.instance.onUnitDestroyed += RemoveUnit;
 
         turnDisplay.PlayerTurn();
-
         Grid.instance.GenerateGrid();
+        
+        state = GameState.PLAYER_TURN;
         StartCoroutine(GameLoop());
     }
 
@@ -99,11 +99,11 @@ public class GameManager : MonoBehaviour {
 
     void SetupUnitTypes() {
         int[,] pattern = {
-            { 0, 0, 1, 0, 0 },
-            { 0, 0, 1, 0, 0 },
-            { 1, 1, 0, 1, 1 },
-            { 0, 0, 1, 0, 0 },
-            { 0, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 0 },
+            { 0, 1, 1, 1, 0 },
+            { 0, 1, 0, 1, 0 },
+            { 0, 1, 1, 1, 0 },
+            { 0, 0, 0, 0, 0 },
         };
         enemyLight = new UnitDescriptor(enemyLightPrefab, Unit.Owner.ENEMY, pattern);
         

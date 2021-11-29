@@ -11,6 +11,7 @@ public class SmartAI : EnemyAI {
             List<MoveUnitCommand> possibleMoves = unit.GetAvailableMoves().OrderBy(a => Guid.NewGuid()).ToList(); //randomize order
             List<AttackCommand> possibleAttacks = unit.GetAvailableAttacks();
 
+            /*
             foreach (MoveUnitCommand command in possibleMoves) {
                 command.DisplayCommand();
             }
@@ -18,12 +19,14 @@ public class SmartAI : EnemyAI {
             foreach (Tile tile in unit.GetAttackableTiles()) {
                 tile.DisplayAttack();
             }
+            */
 
             GameManager.instance.ResetLine();
             if (possibleAttacks.Count > 0) {
                 GameManager.instance.StraightLine(unit.currentTile, possibleAttacks[0].target.currentTile, Color.red);
-                yield return new WaitForSeconds(0.2f);
-                possibleAttacks[0].Execute();
+                yield return new WaitForSeconds(0.3f);
+                GameManager.instance.ResetLine();
+                possibleAttacks[0].ExecuteAnimate();
             }
             else {
                 MoveUnitCommand bestMove = possibleMoves[0];
@@ -38,9 +41,10 @@ public class SmartAI : EnemyAI {
 
                 //Debug.Log($"Best value:{bestValue}");
                 Tile t = Grid.instance.grid[bestMove.x, bestMove.y];
-                GameManager.instance.DisplayLine(unit.currentTile, t, Color.gray);
+                GameManager.instance.DisplayLine(unit.currentTile, t, Color.blue);
 
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.3f);
+                GameManager.instance.ResetLine();
                 bestMove.ExecuteAnimate();
             }
 
@@ -50,6 +54,7 @@ public class SmartAI : EnemyAI {
                 }
             }
 
+            yield return new WaitForSeconds(0.5f);
             GameManager.instance.ResetLine();
             yield return new WaitForEndOfFrame();
         }

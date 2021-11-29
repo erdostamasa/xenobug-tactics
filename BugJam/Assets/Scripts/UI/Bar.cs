@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Bar : MonoBehaviour {
     public Transform target;
-    
-    
+
+
     [SerializeField] float heightOffset = 1f;
     [SerializeField] TextMeshProUGUI damageDisplay;
     [SerializeField] RectTransform healthBar;
@@ -16,6 +17,9 @@ public class Bar : MonoBehaviour {
     [SerializeField] Transform hpBlock;
     [SerializeField] Transform hpBlockDark;
 
+    [SerializeField] Image attackOrb;
+    [SerializeField] float unavailableAlpha = 0.2f;
+
     Unit unit;
 
     void Start() {
@@ -23,8 +27,21 @@ public class Bar : MonoBehaviour {
         SetAttackDisplay();
         SetHealthDisplay(unit.health);
         unit.onHealthChanged += UpdateHealthDisplay;
+        unit.onUnitAvailable += UpdateAvailablity;
     }
 
+    void UpdateAvailablity(bool isOn) {
+        if (isOn) {
+            var tempColor = attackOrb.color;
+            tempColor.a = 1f;
+            attackOrb.color = tempColor;
+        }
+        else {
+            var tempColor = attackOrb.color;
+            tempColor.a = unavailableAlpha;
+            attackOrb.color = tempColor;
+        }
+    }
 
     void SetAttackDisplay() {
         damageDisplay.text = unit.damage.ToString();

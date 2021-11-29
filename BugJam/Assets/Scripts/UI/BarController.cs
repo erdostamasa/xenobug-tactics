@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BarController : MonoBehaviour {
-    [SerializeField] Transform barPrefab;
+    [SerializeField] Transform playerBarPrefab;
+    [SerializeField] Transform enemyBarPrefab;
     Dictionary<Unit, Bar> bars = new Dictionary<Unit, Bar>();
 
     void Awake() {
@@ -14,7 +15,14 @@ public class BarController : MonoBehaviour {
 
     void AddBar(Unit unit) {
         if (!bars.ContainsKey(unit)) {
-            Transform barObject = Instantiate(barPrefab, transform);
+            Transform barObject = null;
+            if (unit.owner == Unit.Owner.PLAYER) {
+                barObject = Instantiate(playerBarPrefab, transform);
+            }
+            else if (unit.owner == Unit.Owner.ENEMY) {
+                barObject = Instantiate(enemyBarPrefab, transform);
+            }
+
             barObject.GetComponent<Bar>().target = unit.transform;
             bars.Add(unit, barObject.GetComponent<Bar>());
         }
