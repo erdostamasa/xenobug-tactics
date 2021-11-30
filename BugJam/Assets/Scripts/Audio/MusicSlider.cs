@@ -8,6 +8,7 @@ public class MusicSlider : MonoBehaviour {
     [SerializeField] Slider _slider;
 
     void Start() {
+        _slider.value = SoundManager.instance.MusicVolume;
         _slider.onValueChanged.AddListener(val => SoundManager.instance.ChangeMusicVolume(val));
     }
 }

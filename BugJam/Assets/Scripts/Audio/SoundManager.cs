@@ -10,6 +10,18 @@ public class SoundManager : MonoBehaviour {
     [SerializeField] AudioSource _musicSource;
     [SerializeField] AudioSource _effectsSource;
 
+    float effectsVolume;
+
+    public float EffectsVolume {
+        get => effectsVolume;
+    }
+
+    public float MusicVolume {
+        get => _musicSource.volume;
+    }
+
+    //float musicVolume;
+
     void Awake() {
         if (instance == null) {
             instance = this;
@@ -22,11 +34,11 @@ public class SoundManager : MonoBehaviour {
 
     public void PlaySound(SoundDescriptor sd) {
         _effectsSource.pitch = Random.Range(sd.pitchRange.x, sd.pitchRange.y);
-        _effectsSource.PlayOneShot(sd.audioClip, sd.volume);
+        _effectsSource.PlayOneShot(sd.audioClip, sd.volume * effectsVolume);
     }
 
     public void ChangeEffectsVolume(float volume) {
-        _effectsSource.volume = volume;
+        effectsVolume = volume;
     }
 
     public void ChangeMusicVolume(float volume) {

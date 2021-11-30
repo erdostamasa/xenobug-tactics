@@ -80,6 +80,7 @@ public class Unit : MonoBehaviour {
     }
 
     public virtual void MoveAnimate(int x, int y) {
+        moveAudioSource.volume = SoundManager.instance.EffectsVolume;
         moveAudioSource.mute = false;
         GameManager.instance.moveInProgress = true;
 
