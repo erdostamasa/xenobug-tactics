@@ -50,6 +50,8 @@ MonoBehaviour:
   owner: 0
   available: 0
   uiHeightOffset: 0.6
+  attackSound: {fileID: 8300000, guid: bb2e2714f962491428dcb0b38598b251, type: 3}
+  deathSound: {fileID: 8300000, guid: 986d6b30567e30e428f3f21373fe45ca, type: 3}
   moveRange: 5
   health: 3
   damage: 1

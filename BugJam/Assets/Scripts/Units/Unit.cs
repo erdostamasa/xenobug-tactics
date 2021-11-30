@@ -16,6 +16,10 @@ public class Unit : MonoBehaviour {
     // [SerializeField] TextMeshProUGUI healthDisplay;
     // [SerializeField] TextMeshProUGUI attackDisplay;
     public float uiHeightOffset;
+    
+    [Header("Sounds")]
+    [SerializeField] protected AudioClip attackSound;
+    [SerializeField] protected AudioClip deathSound;
 
     Animator anim;
 
@@ -65,6 +69,7 @@ public class Unit : MonoBehaviour {
     }
 
     public void MoveAnimate(int x, int y) {
+        
         if (anim != null) {
             anim.SetBool("stopMove", false);
             anim.Play("moving");
@@ -127,6 +132,7 @@ public class Unit : MonoBehaviour {
     }
 
     public virtual void AttackAnimate(Unit target) {
+        SoundManager.instance.PlaySound(attackSound);
         target.TakeDamage(damage);
         if (anim != null && anim.HasState(0, Animator.StringToHash("attack"))) {
             anim.Play("attack");

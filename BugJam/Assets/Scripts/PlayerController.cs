@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour {
@@ -42,7 +43,7 @@ public class PlayerController : MonoBehaviour {
 
 
         //click
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
             //clicked on a valid tile
             if (tileUnderMouse != null && tileUnderMouse.walkable) {
                 //clicked on a unit

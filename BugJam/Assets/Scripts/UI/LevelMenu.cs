@@ -16,13 +16,14 @@ public class LevelMenu : MonoBehaviour {
             Destroy(levelGrid.GetChild(i).gameObject);
         }
 
+        LevelsSO mapHolder = Resources.Load<LevelsSO>("LevelsContainer");
 
         //add level buttons
-        foreach (TextAsset textAsset in LevelHolder.instance.levels) {
+        for (int i = 0; i < mapHolder.levels.Count; i++) {
             Transform button = Instantiate(buttonPrefab, levelGrid, true);
-            button.GetComponent<LevelButton>().levelName = textAsset.name;
+            button.GetComponent<LevelButton>().levelIndex = i;
             button.GetComponent<LevelButton>().BindLevel();
-            button.GetComponentInChildren<TextMeshProUGUI>().text = textAsset.name;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = mapHolder.levels[i].name;
             button.GetComponent<RectTransform>().localScale = Vector3.one;
         }
 

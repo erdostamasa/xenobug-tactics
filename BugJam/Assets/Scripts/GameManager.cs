@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] TurnDisplay turnDisplay;
     [SerializeField] EndDisplay _endDisplay;
     [SerializeField] GameObject pauseMenu;
+    [SerializeField] HelpMenu helpMenu;
 
     [Header("Units")]
     public Transform enemyLightPrefab;
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour {
     public Transform playerLightPrefab;
     public Transform playerHeavyPrefab;
 
+
+    public bool moveInProgress;
 
     public UnitDescriptor enemyLight;
     public UnitDescriptor enemySniper;
@@ -45,16 +48,28 @@ public class GameManager : MonoBehaviour {
 
         turnDisplay.PlayerTurn();
         Grid.instance.GenerateGrid();
-        
+
         state = GameState.PLAYER_TURN;
         StartCoroutine(GameLoop());
     }
 
+    public void PauseGame() {
+        Time.timeScale = 0;
+        pauseMenu.SetActive(true);
+    }
+
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)) {
-            Time.timeScale = 0;
-            pauseMenu.SetActive(true);
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            PauseGame();
         }
+
+        if (Input.GetKeyDown(KeyCode.F1)) {
+            helpMenu.ToggleMenu();
+        }
+    }
+    
+    public void Restart() {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void DisplayLine(Tile from, Tile to, Color color) {
@@ -106,7 +121,7 @@ public class GameManager : MonoBehaviour {
             { 0, 0, 0, 0, 0 },
         };
         enemyLight = new UnitDescriptor(enemyLightPrefab, Unit.Owner.ENEMY, pattern);
-        
+
         pattern = new[,] {
             { 1, 1, 1, 1, 1 },
             { 1, 0, 0, 0, 1 },
@@ -134,7 +149,6 @@ public class GameManager : MonoBehaviour {
             { 0, 0, 1, 0, 0 },
         };
         playerHeavy = new UnitDescriptor(playerHeavyPrefab, Unit.Owner.PLAYER, pattern);
-        
     }
 
     IEnumerator GameLoop() {

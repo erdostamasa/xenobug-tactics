@@ -12,7 +12,7 @@ public class PlayerUnit : Unit {
 
     public override void AttackAnimate(Unit target) {
         //base.AttackAnimate(target);
-
+        SoundManager.instance.PlaySound(attackSound);
 
         Vector3 dir = (target.transform.position - turret.transform.position).normalized;
 
@@ -37,18 +37,10 @@ public class PlayerUnit : Unit {
     IEnumerator RotateTurret(float yDestination) {
         int maxIters = 1000;
         int i = 0;
-        
-        /*
-         
-         Math.Abs(turret.rotation.eulerAngles.y - yDestination) = 90,00003
-         yDestination = 91,02198
-         turretrot = 181.02201
-         
-         
-         */
-        
+
+
         while (Math.Abs(turret.localRotation.eulerAngles.y - yDestination) > 1f && i < maxIters) {
-            print(Math.Abs(turret.localRotation.eulerAngles.y - yDestination) + " deltatime: " + Time.deltaTime + " destination: " + yDestination);
+            //print(Math.Abs(turret.localRotation.eulerAngles.y - yDestination) + " deltatime: " + Time.deltaTime + " destination: " + yDestination);
             turret.localEulerAngles = new Vector3(0, Mathf.LerpAngle(turret.localRotation.eulerAngles.y, yDestination, Time.deltaTime * 8f), 0);
             i++;
             yield return new WaitForEndOfFrame();
@@ -56,6 +48,7 @@ public class PlayerUnit : Unit {
     }
 
     public override void DestroySelf() {
+        SoundManager.instance.PlaySound(deathSound);
         EventManager.instance.UnitDestroyed(this);
         //base.DestroySelf();
         explosionParticle.SetActive(true);

@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class MenuManager : MonoBehaviour {
     [SerializeField] LevelMenu _levelMenu;
     [SerializeField] GameObject mainMenu;
-    
+
     public static bool openLevelSelector = false;
 
 
@@ -31,10 +31,4 @@ public class MenuManager : MonoBehaviour {
     public void ExitGame() {
         Application.Quit();
     }
-
-    public void LoadLevel(string levelName) {
-        LevelHolder.instance.selectedLevelName = levelName;
-    }
-    
-    
 }

@@ -30,17 +30,7 @@ public class Grid : MonoBehaviour {
     }
 
     void Start() {
-        if (LevelHolder.instance == null) {
-            Debug.LogWarning("USING DEFAULT MAP");
-            mapFile = defaultMap;
-        }
-        else {
-            mapFile = LevelHolder.instance.GetLevelText();
-        }
-        //GenerateGrid();
-
-
-        // Setup background cube
+        mapFile = Resources.Load<LevelsSO>("LevelsContainer").levels[PlayerPrefs.GetInt("selectedLevel", 0)];
     }
 
 

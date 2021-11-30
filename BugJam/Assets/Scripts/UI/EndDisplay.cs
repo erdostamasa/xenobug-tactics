@@ -30,7 +30,10 @@ public class EndDisplay : MonoBehaviour {
     }
 
     public void SelectNextLevel() {
-        if (LevelHolder.instance.SelectNextLevel()) {
+        LevelsSO mapHolder = Resources.Load<LevelsSO>("LevelsContainer");
+        int currentIndex = PlayerPrefs.GetInt("selectedLevel", 0);
+        if (currentIndex < mapHolder.levels.Count - 1) {
+            PlayerPrefs.SetInt("selectedLevel", currentIndex + 1);
             SceneManager.LoadScene(1);
         }
         else {
