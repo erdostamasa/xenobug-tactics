@@ -29,7 +29,7 @@ public class MoveUnitCommand : Command {
         }
         else {
             unit.movedThisTurn = true;
-            unit.UnitActionPointsChanged();
+            //unit.UnitActionPointsChanged();
         }
     }
 

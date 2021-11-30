@@ -66,20 +66,20 @@ public class Unit : MonoBehaviour {
     }
 
     public void MoveTo(int x, int y) {
-        Vector3 start = currentTile.transform.position;
+        // Vector3 start = currentTile.transform.position;
 
         currentTile.Unit = null;
         currentTile = Grid.instance.grid[x, y];
         currentTile.Unit = this;
-        transform.position = currentTile.unitPosition.position;
+        //transform.position = currentTile.unitPosition.position;
 
 
-        Vector3 end = currentTile.transform.position;
-
-        if (start != end) {
-            Vector3 dir = (end - start).normalized;
-            transform.forward = dir;
-        }
+        // Vector3 end = currentTile.transform.position;
+        //
+        // if (start != end) {
+        //     Vector3 dir = (end - start).normalized;
+        //     transform.forward = dir;
+        // }
     }
 
     public virtual void MoveAnimate(int x, int y) {

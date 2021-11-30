@@ -5,6 +5,8 @@ using System.Linq;
 using UnityEngine;
 
 public class SmartAI : EnemyAI {
+    int value;
+
     public override IEnumerator MakeMove() {
         foreach (Unit unit in units) {
             yield return new WaitUntil(() => !GameManager.instance.moveInProgress);
@@ -14,7 +16,8 @@ public class SmartAI : EnemyAI {
             MoveUnitCommand bestMove = possibleMoves[0];
             int bestValue = 0;
             foreach (MoveUnitCommand moveUnitCommand in possibleMoves) {
-                int value = CalculateMoveValue(moveUnitCommand);
+                //int value = CalculateMoveValue(moveUnitCommand);
+                yield return CalculateMoveValue(moveUnitCommand);
                 if (value > bestValue) {
                     bestMove = moveUnitCommand;
                     bestValue = value;
@@ -29,7 +32,7 @@ public class SmartAI : EnemyAI {
 
 
             yield return new WaitUntil(() => !GameManager.instance.moveInProgress);
-            yield return new WaitForSeconds(0.2f);
+            //yield return new WaitForSeconds(0.2f);
 
 
             // 2. MOVE OR ATTACK
@@ -44,7 +47,8 @@ public class SmartAI : EnemyAI {
             }
             else {
                 foreach (MoveUnitCommand moveUnitCommand in possibleMoves) {
-                    int value = CalculateMoveValue(moveUnitCommand);
+                    //int value = CalculateMoveValue(moveUnitCommand);
+                    yield return CalculateMoveValue(moveUnitCommand);
                     if (value > bestValue) {
                         bestMove = moveUnitCommand;
                         bestValue = value;
@@ -83,15 +87,18 @@ public class SmartAI : EnemyAI {
     }
 
     //TODO: make number of simulation turns a parameter
-    int CalculateMoveValue(MoveUnitCommand command) {
-        Time.timeScale = 0;
-        int value = 0;
+    IEnumerator CalculateMoveValue(MoveUnitCommand command) {
+        //Time.timeScale = 0;
+        int calculatedValue = 0;
 
         // execute command
         command.Execute();
 
         // check potential player moves
 
+        bool canHitEnemy = false;
+        bool canBeHit = false;
+        
         foreach (Unit playerUnit in GameManager.instance.player.units) {
             List<MoveUnitCommand> playerMoves = playerUnit.GetAvailableMoves();
             foreach (MoveUnitCommand playerMove in playerMoves) {
@@ -102,12 +109,14 @@ public class SmartAI : EnemyAI {
                     secondMove.Execute();
                     // add value if unit can hit player
                     if (command.unit.GetAvailableAttacks().Count > 0) {
-                        value += command.unit.attackAiValue;
+                        //calculatedValue += command.unit.attackAiValue;
+                        canHitEnemy = true;
+                        break;
                     }
 
                     // subtract value if unit can be hit by player
                     if (playerUnit.GetAttackableTiles().Contains(command.unit.currentTile)) {
-                        value += command.unit.dangerAiValue;
+                        calculatedValue += command.unit.dangerAiValue;
                     }
 
                     secondMove.Undo();
@@ -115,11 +124,22 @@ public class SmartAI : EnemyAI {
 
                 playerMove.Undo();
             }
+
+            yield return null;
+        }
+
+        if (canHitEnemy) {
+            calculatedValue += command.unit.attackAiValue;
+        }
+        
+        if (Grid.instance.grid[command.x, command.y] == command.unit.currentTile) {
+            calculatedValue -= 10;
         }
 
         command.Undo();
 
-        Time.timeScale = 1f;
-        return value;
+        //Time.timeScale = 1f;
+        //Debug.Log("VALUE: " + calculatedValue);
+        value = calculatedValue;
     }
 }
