@@ -21,10 +21,12 @@ public class MoveUnitCommand : Command {
         rotBefore = unit.transform.rotation;
 
         unit.MoveTo(x, y);
+        unit.canMove = false;
     }
 
     public override void ExecuteAnimate() {
         unit.MoveAnimate(x, y);
+        unit.canMove = false;
     }
 
     public void Undo() {

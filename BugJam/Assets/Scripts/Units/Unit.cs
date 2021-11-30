@@ -11,17 +11,27 @@ public class Unit : MonoBehaviour {
     public Owner owner;
     public int[,] attackPattern;
     public bool available;
+    public bool canMove;
     // [SerializeField] Material availableMaterial;
     // [SerializeField] Material unavailableMaterial;
     // [SerializeField] TextMeshProUGUI healthDisplay;
     // [SerializeField] TextMeshProUGUI attackDisplay;
     public float uiHeightOffset;
+
+    [Header("Particles")]
+    [SerializeField] protected ParticleSystem damagedParticles;
+    [SerializeField] List<ParticleSystem> moveParticles;
+    
     
     [Header("Sounds")]
     [SerializeField] protected AudioClip attackSound;
+    [SerializeField] protected AudioClip damagedSound;
     [SerializeField] protected AudioClip deathSound;
+    [SerializeField] AudioSource moveAudioSource;
 
-    Animator anim;
+    
+    
+    protected Animator anim;
 
     public int moveRange = 1;
     public int health;
@@ -29,9 +39,10 @@ public class Unit : MonoBehaviour {
 
     public event Action<int> onHealthChanged;
     public event Action<bool> onUnitAvailable;
+    public event Action onUnitMoved;
 
-    float moveDuration = 0.5f;
-    float rotateDuration = 0.3f;
+    float moveDuration = 0.3f;
+    float rotateDuration = 0.2f;
 
 
     void Start() {
@@ -68,8 +79,14 @@ public class Unit : MonoBehaviour {
         SetUnavailable();
     }
 
-    public void MoveAnimate(int x, int y) {
-        
+    public virtual void MoveAnimate(int x, int y) {
+        moveAudioSource.mute = false;
+        GameManager.instance.moveInProgress = true;
+
+        foreach (ParticleSystem system in moveParticles) {
+            system.Play();
+        }
+
         if (anim != null) {
             anim.SetBool("stopMove", false);
             anim.Play("moving");
@@ -111,24 +128,21 @@ public class Unit : MonoBehaviour {
             if (anim != null) {
                 anim.SetBool("stopMove", true);
             }
+
+            GameManager.instance.moveInProgress = false;
+            foreach (ParticleSystem system in moveParticles) {
+                system.Stop();
+            }
+            
+            moveAudioSource.mute = true;
         });
-
-
-        //transform.DOMove(currentTile.unitPosition.position, 3f);
-
-
-        // if (start != end) {
-        //     Vector3 dir = (end - start).normalized;
-        //     transform.forward = dir;
-        // }
-
-
-        SetUnavailable();
+        
     }
 
 
     public void Attack(Unit target) {
         target.TakeDamage(damage);
+        SetUnavailable();
     }
 
     public virtual void AttackAnimate(Unit target) {
@@ -139,10 +153,13 @@ public class Unit : MonoBehaviour {
         }
 
         transform.forward = (target.transform.position - transform.position).normalized;
+        SetUnavailable();
     }
 
 
     public void TakeDamage(int dmg) {
+        damagedParticles.Play();
+        SoundManager.instance.PlaySound(damagedSound);
         health -= dmg;
         onHealthChanged?.Invoke(health);
         if (health <= 0) {
@@ -154,12 +171,14 @@ public class Unit : MonoBehaviour {
 
     public void SetAvailable() {
         available = true;
+        canMove = true;
         onUnitAvailable?.Invoke(true);
         //GetComponentInChildren<Renderer>().material = availableMaterial;
     }
 
     public void SetUnavailable() {
         available = false;
+        canMove = false;
         onUnitAvailable?.Invoke(false);
         //GetComponentInChildren<Renderer>().material = unavailableMaterial;
     }
@@ -176,7 +195,7 @@ public class Unit : MonoBehaviour {
                 Vector3 start = currentTile.unitPosition.position;
                 Vector3 end = Grid.instance.grid[coordinate.Item1, coordinate.Item2].unitPosition.position;
                 float distance = (end - start).magnitude;
-                if (Physics.Raycast(start, (end - start).normalized, out var hit, distance, ~LayerMask.NameToLayer("Obstacle"))) {
+                if (Physics.Raycast(start, (end - start).normalized, out var hit, distance, LayerMask.NameToLayer("Obstacle"))) {
                     //obstacle detected, attack not possible
                     //Debug.DrawLine(start, hit.point, Color.red);    
                 }
@@ -191,6 +210,9 @@ public class Unit : MonoBehaviour {
     }
 
     public List<Tile> GetMovableTiles() {
+
+        if (!canMove) return new List<Tile>();
+        
         List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, moveRange);
 
         List<Tile> toRemove = new List<Tile>();

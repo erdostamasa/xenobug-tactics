@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,14 +9,39 @@ public class LaserEnemy : Unit {
     [SerializeField] Transform attackPosition;
 
     public override void AttackAnimate(Unit target) {
-        base.AttackAnimate(target);
+        GameManager.instance.moveInProgress = true;
+        //base.AttackAnimate(target);
 
+        if (anim != null && anim.HasState(0, Animator.StringToHash("attack"))) {
+            anim.Play("attack");
+        }
         
         // line.EndPos = target.transform.position;
         StartCoroutine(LaserAnimation(target.currentTile));
     }
 
     IEnumerator LaserAnimation(Tile target) {
+        //turn towards target
+        Vector3 dir = (target.unitPosition.position - currentTile.unitPosition.position).normalized;
+        Vector3 oldForward = transform.forward;
+
+        transform.forward = dir;
+        float targetY = transform.localRotation.eulerAngles.y;
+        transform.forward = oldForward;
+        
+        int maxIters = 200;
+        int i = 0;
+        while (Math.Abs(transform.localRotation.eulerAngles.y - targetY) > 1f && i < maxIters) {
+            transform.localEulerAngles = new Vector3(0, Mathf.LerpAngle(transform.localRotation.eulerAngles.y, targetY, Time.deltaTime * 8f), 0);
+            i++;
+            yield return new WaitForEndOfFrame();
+        }
+        
+        
+        //attack animation
+       
+        SoundManager.instance.PlaySound(attackSound);
+        
         yield return new WaitForSeconds(0.3f);
         
         line.gameObject.SetActive(true);
@@ -32,6 +58,9 @@ public class LaserEnemy : Unit {
             yield return new WaitForEndOfFrame();
         }
 
+        target.Unit.TakeDamage(damage);
         line.gameObject.SetActive(false);
+        GameManager.instance.moveInProgress = false;
+        SetUnavailable();
     }
 }

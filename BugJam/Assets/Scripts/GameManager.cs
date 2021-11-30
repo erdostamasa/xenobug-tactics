@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour {
 
 
     public bool moveInProgress;
-
+    public bool wantsToEndTurn;
+    
     public UnitDescriptor enemyLight;
     public UnitDescriptor enemySniper;
     public UnitDescriptor playerLight;
@@ -134,9 +135,9 @@ public class GameManager : MonoBehaviour {
 
         pattern = new[,] {
             { 0, 0, 1, 0, 0 },
-            { 0, 0, 1, 0, 0 },
+            { 0, 1, 1, 1, 0 },
             { 1, 1, 0, 1, 1 },
-            { 0, 0, 1, 0, 0 },
+            { 0, 1, 1, 1, 0 },
             { 0, 0, 1, 0, 0 },
         };
         playerLight = new UnitDescriptor(playerLightPrefab, Unit.Owner.PLAYER, pattern);
@@ -153,11 +154,14 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator GameLoop() {
         while (true) {
+            if(moveInProgress) yield return new WaitForEndOfFrame();
+            
             if (opponent.units.Count == 0) {
                 _endDisplay.gameObject.SetActive(true);
                 _endDisplay.GameWon();
                 state = GameState.GAME_ENDED;
                 EventManager.instance.GameEnded();
+                player.ResetGridDisplay();
             }
 
             if (player.units.Count == 0) {
@@ -165,9 +169,11 @@ public class GameManager : MonoBehaviour {
                 _endDisplay.GameLost();
                 state = GameState.GAME_ENDED;
                 EventManager.instance.GameEnded();
+                player.ResetGridDisplay();
             }
 
-            if (state == GameState.ENEMY_TURN) {
+            if (state == GameState.ENEMY_TURN && wantsToEndTurn) {
+                wantsToEndTurn = false;
                 turnDisplay.EnemyTurn();
                 yield return new WaitForSeconds(0.5f);
 
@@ -176,7 +182,9 @@ public class GameManager : MonoBehaviour {
                 }
 
                 yield return StartCoroutine(opponent.MakeMove());
-
+                yield return new WaitUntil(() => wantsToEndTurn);
+                wantsToEndTurn = false;
+                
                 state = GameState.PLAYER_TURN;
                 turnDisplay.PlayerTurn();
                 foreach (Unit unit in player.units) {

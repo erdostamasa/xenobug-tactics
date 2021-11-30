@@ -20,8 +20,6 @@ public class AttackCommand : Command {
         // else {
         unit.AttackAnimate(target);
         // }
-
-        unit.SetUnavailable();
     }
 
     public AttackCommand(Unit unit, Unit target) {

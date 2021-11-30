@@ -12,6 +12,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Units/BugEnemy.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/PauseMenuController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Storage.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/LevelHolder.cs" root0="FORCE_HIGHLIGHTING" />
@@ -105,7 +106,7 @@
       <workItem from="1638010229244" duration="7392000" />
       <workItem from="1638107580354" duration="13788000" />
       <workItem from="1638200142063" duration="18126000" />
-      <workItem from="1638277491860" duration="6527000" />
+      <workItem from="1638277491860" duration="15874000" />
     </task>
     <servers />
   </component>

@@ -7,44 +7,44 @@ public class PlayerUnit : Unit {
     [SerializeField] GameObject explosionParticle;
     [SerializeField] GameObject smokeParticle;
     [SerializeField] ParticleSystem muzzleFlash;
+    
+    
 
     [SerializeField] Transform turret;
 
     public override void AttackAnimate(Unit target) {
         //base.AttackAnimate(target);
-        SoundManager.instance.PlaySound(attackSound);
+        GameManager.instance.moveInProgress = true;
 
         Vector3 dir = (target.transform.position - turret.transform.position).normalized;
-
         Vector3 oldForward = turret.forward;
-
-        Debug.DrawLine(turret.position, turret.position + turret.forward, Color.red, 5f);
         dir = new Vector3(dir.x, 0, dir.z);
-        Debug.DrawLine(turret.position, turret.position + dir, Color.cyan, 5f);
         turret.forward = dir;
-
         float targetY = turret.localRotation.eulerAngles.y;
-
         turret.forward = oldForward;
 
-        Debug.LogWarning("y target: " + targetY);
-        StartCoroutine(RotateTurret(targetY));
-        muzzleFlash.Play();
-
-        target.TakeDamage(damage);
+        StartCoroutine(RotateTurret(targetY, target));
+        SetUnavailable();
     }
 
-    IEnumerator RotateTurret(float yDestination) {
-        int maxIters = 1000;
+    
+
+    IEnumerator RotateTurret(float yDestination, Unit target) {
+        int maxIters = 200;
         int i = 0;
-
-
         while (Math.Abs(turret.localRotation.eulerAngles.y - yDestination) > 1f && i < maxIters) {
-            //print(Math.Abs(turret.localRotation.eulerAngles.y - yDestination) + " deltatime: " + Time.deltaTime + " destination: " + yDestination);
-            turret.localEulerAngles = new Vector3(0, Mathf.LerpAngle(turret.localRotation.eulerAngles.y, yDestination, Time.deltaTime * 8f), 0);
+            turret.localEulerAngles = new Vector3(0, Mathf.LerpAngle(turret.localRotation.eulerAngles.y, yDestination, Time.deltaTime * 5f), 0);
+            //turret.localEulerAngles += new Vector3(0, Time.deltaTime * 5f, 0);
             i++;
             yield return new WaitForEndOfFrame();
         }
+
+        muzzleFlash.Play();
+        yield return new WaitForSeconds(0.1f);
+        SoundManager.instance.PlaySound(attackSound);
+        target.TakeDamage(damage);
+        GameManager.instance.moveInProgress = false;
+        SetUnavailable();
     }
 
     public override void DestroySelf() {
@@ -52,9 +52,12 @@ public class PlayerUnit : Unit {
         EventManager.instance.UnitDestroyed(this);
         //base.DestroySelf();
         explosionParticle.SetActive(true);
+        
+        
         smokeParticle.SetActive(true);
         currentTile.Unit = null;
         currentTile.walkable = false;
         currentTile.selectable = false;
+        Destroy(turret.gameObject);
     }
 }

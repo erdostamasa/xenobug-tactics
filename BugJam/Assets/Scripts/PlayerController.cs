@@ -24,14 +24,16 @@ public class PlayerController : MonoBehaviour {
             unit.SetUnavailable();
         }
 
+        GameManager.instance.wantsToEndTurn = true;
         GameManager.instance.state = GameManager.GameState.ENEMY_TURN;
     }
 
 
     void Update() {
-        if (GameManager.instance.state == GameManager.GameState.ENEMY_TURN) return;
+        if (GameManager.instance.state == GameManager.GameState.ENEMY_TURN || GameManager.instance.moveInProgress) return;
+
         if (!HasAvailableUnit()) {
-            GameManager.instance.state = GameManager.GameState.ENEMY_TURN;
+            EndTurn();
             return;
         }
 
@@ -57,12 +59,16 @@ public class PlayerController : MonoBehaviour {
                             ResetSelection();
                             //select unit
                             selected = tileUnderMouse.Unit;
-                            //display range
-                            selectedCommands = selected.GetAvailableMoves();
-                            foreach (MoveUnitCommand command in selectedCommands) {
-                                command.DisplayCommand();
+                            
+                            if (tileUnderMouse.Unit.canMove) {
+                                //display move range
+                                selectedCommands = selected.GetAvailableMoves();
+                                foreach (MoveUnitCommand command in selectedCommands) {
+                                    command.DisplayCommand();
+                                }    
                             }
-
+                            
+                            // display attack range
                             foreach (Tile tile in selected.GetAttackableTiles()) {
                                 tile.DisplayAttack();
                             }
@@ -97,7 +103,7 @@ public class PlayerController : MonoBehaviour {
                 } //clicked on empty tile
                 else {
                     //selected unit
-                    if (selected != null) {
+                    if (selected != null && selectedCommands != null) {
                         foreach (MoveUnitCommand command in selectedCommands) {
                             //found clicked tile command
                             if (command.x == tileUnderMouse.x && command.y == tileUnderMouse.y) {
@@ -147,7 +153,7 @@ public class PlayerController : MonoBehaviour {
         return units.Select(unit => unit.available).Contains(true);
     }
 
-    void ResetGridDisplay() {
+    public void ResetGridDisplay() {
         foreach (Tile tile in Grid.instance.grid) {
             if (tile != null) {
                 tile.ClearDisplays();
