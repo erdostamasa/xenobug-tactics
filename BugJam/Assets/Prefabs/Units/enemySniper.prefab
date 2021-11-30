@@ -382,16 +382,19 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   owner: 0
   available: 0
+  movedThisTurn: 0
   uiHeightOffset: 1
   damagedParticles: {fileID: 8517294487804154453}
   moveParticles: []
-  attackSound: {fileID: 8300000, guid: 7f4aa26d5b55226409cda231ffaf869b, type: 3}
-  damagedSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  attackSound: {fileID: 11400000, guid: c17e339e034b1c943a3f10450cda823d, type: 2}
+  damagedSound: {fileID: 11400000, guid: b98e766470bdc6044afcc982850e3700, type: 2}
+  deathSound: {fileID: 11400000, guid: b98e766470bdc6044afcc982850e3700, type: 2}
   moveAudioSource: {fileID: 1057632426718364504}
   moveRange: 2
   health: 3
   damage: 1
+  deathParticlePrefab: {fileID: 4239642983685127916, guid: 0c2974d0f4d906349831f4f08d1f65fa, type: 3}
+  deathParticlePosition: {fileID: 8517294487819290969}
   line: {fileID: 3374323865635522253}
   attackPosition: {fileID: 8839460658064889462}
 --- !u!33 &3468843305023553526
@@ -997,6 +1000,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c27aeead6d968e4ba986702d6b84335, type: 3}
+--- !u!4 &8517294487819290969 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 420266, guid: 8c27aeead6d968e4ba986702d6b84335, type: 3}
+  m_PrefabInstance: {fileID: 8517294487819182323}
+  m_PrefabAsset: {fileID: 0}
 --- !u!198 &8517294487804154453 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 19886758, guid: 8c27aeead6d968e4ba986702d6b84335, type: 3}

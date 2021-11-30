@@ -20,9 +20,9 @@ public class SoundManager : MonoBehaviour {
         }
     }
 
-    public void PlaySound(AudioClip clip) {
-        _effectsSource.pitch = Random.Range(.95f, 1.05f);
-        _effectsSource.PlayOneShot(clip);
+    public void PlaySound(SoundDescriptor sd) {
+        _effectsSource.pitch = Random.Range(sd.pitchRange.x, sd.pitchRange.y);
+        _effectsSource.PlayOneShot(sd.audioClip, sd.volume);
     }
 
     public void ChangeEffectsVolume(float volume) {

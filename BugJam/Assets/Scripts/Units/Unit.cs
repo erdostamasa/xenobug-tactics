@@ -21,16 +21,15 @@ public class Unit : MonoBehaviour {
     [Header("Particles")]
     [SerializeField] protected ParticleSystem damagedParticles;
     [SerializeField] List<ParticleSystem> moveParticles;
-    
-    
+
+
     [Header("Sounds")]
-    [SerializeField] protected AudioClip attackSound;
-    [SerializeField] protected AudioClip damagedSound;
-    [SerializeField] protected AudioClip deathSound;
+    [SerializeField] protected SoundDescriptor attackSound;
+    [SerializeField] protected SoundDescriptor damagedSound;
+    [SerializeField] protected SoundDescriptor deathSound;
     [SerializeField] AudioSource moveAudioSource;
 
-    
-    
+
     protected Animator anim;
 
     public int moveRange = 1;
@@ -45,8 +44,8 @@ public class Unit : MonoBehaviour {
         onUnitActionPointsChanged?.Invoke();
     }
 
-    float moveDuration = 0.15f;
-    float rotateDuration = 0.05f;
+    float moveDuration = 0.3f;
+    float rotateDuration = 0.2f;
 
 
     void Start() {
@@ -78,7 +77,6 @@ public class Unit : MonoBehaviour {
             Vector3 dir = (end - start).normalized;
             transform.forward = dir;
         }
-
     }
 
     public virtual void MoveAnimate(int x, int y) {
@@ -135,20 +133,15 @@ public class Unit : MonoBehaviour {
             foreach (ParticleSystem system in moveParticles) {
                 system.Stop();
             }
-            
+
             moveAudioSource.mute = true;
-            
-            
         });
-        
     }
 
 
     public void Attack(Unit target) {
         target.TakeDamage(damage);
         SetUnavailable();
-        
-        
     }
 
     public virtual void AttackAnimate(Unit target) {
@@ -203,13 +196,13 @@ public class Unit : MonoBehaviour {
                 Vector3 start = currentTile.unitPosition.position;
                 Vector3 end = Grid.instance.grid[coordinate.Item1, coordinate.Item2].unitPosition.position;
                 float distance = (end - start).magnitude;
-                if (Physics.Raycast(start, (end - start).normalized, out var hit, distance, LayerMask.NameToLayer("Obstacle"))) {
+                if (Physics.Raycast(start, (end - start).normalized, out var hit, distance, ~LayerMask.NameToLayer("Obstacle"))) {
                     //obstacle detected, attack not possible
-                    //Debug.DrawLine(start, hit.point, Color.red);    
+                    Debug.DrawLine(start, hit.point, Color.red);
                 }
                 else {
                     attackable.Add(Grid.instance.grid[coordinate.Item1, coordinate.Item2]);
-                    //Debug.DrawLine(start, end, Color.green);   
+                    Debug.DrawLine(start, end, Color.green);
                 }
             }
         }
@@ -218,9 +211,6 @@ public class Unit : MonoBehaviour {
     }
 
     public List<Tile> GetMovableTiles() {
-
-        
-        
         List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, moveRange);
 
         List<Tile> toRemove = new List<Tile>();

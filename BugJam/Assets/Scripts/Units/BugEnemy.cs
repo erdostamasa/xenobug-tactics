@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BugEnemy : Unit {
+public class BugEnemy : EnemyUnit {
     public override void AttackAnimate(Unit target) {
         GameManager.instance.moveInProgress = true;
         //base.AttackAnimate(target);
@@ -37,16 +37,10 @@ public class BugEnemy : Unit {
         yield return new WaitForSeconds(0.1f);
         SoundManager.instance.PlaySound(attackSound);
         yield return new WaitForSeconds(0.2f);
-        
+
         target.Unit.TakeDamage(damage);
-        
+
         GameManager.instance.moveInProgress = false;
         SetUnavailable();
-    }
-
-    public override void DestroySelf() {
-        SoundManager.instance.PlaySound(deathSound);
-        EventManager.instance.UnitDestroyed(this);
-        Destroy(gameObject);
     }
 }

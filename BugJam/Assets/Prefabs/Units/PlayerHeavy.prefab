@@ -192,9 +192,9 @@ MonoBehaviour:
   moveParticles:
   - {fileID: 8953350089988711806}
   - {fileID: 207230611491661117}
-  attackSound: {fileID: 8300000, guid: bb2e2714f962491428dcb0b38598b251, type: 3}
-  damagedSound: {fileID: 0}
-  deathSound: {fileID: 8300000, guid: d47e6ed162da1f740ad807d00f4679f3, type: 3}
+  attackSound: {fileID: 11400000, guid: b01fdc3c49b03924ca4985bdf1b64b6e, type: 2}
+  damagedSound: {fileID: 11400000, guid: e43255a709e718649bf24a9a85d3bf72, type: 2}
+  deathSound: {fileID: 11400000, guid: 2cc79069ee4cf2f4aa200e10e636dad9, type: 2}
   moveAudioSource: {fileID: 2978151618805990372}
   moveRange: 2
   health: 6

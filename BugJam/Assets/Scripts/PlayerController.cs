@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     public void EndTurn() {
+        ResetSelection();
+        GameManager.instance.ResetLine();
+        
         foreach (Unit unit in units) {
             unit.SetUnavailable();
         }
@@ -51,6 +54,7 @@ public class PlayerController : MonoBehaviour {
                 //clicked on a unit
                 if (tileUnderMouse.Unit != null) {
                     //clicked on own unit
+                    
                     if (units.Contains(tileUnderMouse.Unit)) {
                         if (selected != null) {
                             ResetSelection();
@@ -76,6 +80,7 @@ public class PlayerController : MonoBehaviour {
                     }
                     //clicked on enemy unit
                     else {
+                        ResetGridDisplay();
                         if (selected != null) {
                             //check if attackable
                             var possibleAttacks = selected.GetAvailableAttacks();
