@@ -384,6 +384,8 @@ MonoBehaviour:
   available: 0
   movedThisTurn: 0
   uiHeightOffset: 1
+  attackAiValue: 3
+  dangerAiValue: 2
   damagedParticles: {fileID: 8517294487804154453}
   moveParticles: []
   attackSound: {fileID: 11400000, guid: c17e339e034b1c943a3f10450cda823d, type: 2}

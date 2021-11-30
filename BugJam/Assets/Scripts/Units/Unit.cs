@@ -18,6 +18,9 @@ public class Unit : MonoBehaviour {
     // [SerializeField] TextMeshProUGUI attackDisplay;
     public float uiHeightOffset;
 
+    public int attackAiValue;
+    public int dangerAiValue;
+    
     [Header("Particles")]
     [SerializeField] protected ParticleSystem damagedParticles;
     [SerializeField] List<ParticleSystem> moveParticles;

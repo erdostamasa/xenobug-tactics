@@ -196,8 +196,8 @@ MonoBehaviour:
   damagedSound: {fileID: 11400000, guid: e43255a709e718649bf24a9a85d3bf72, type: 2}
   deathSound: {fileID: 11400000, guid: 2cc79069ee4cf2f4aa200e10e636dad9, type: 2}
   moveAudioSource: {fileID: 2978151618805990372}
-  moveRange: 2
-  health: 6
+  moveRange: 1
+  health: 5
   damage: 2
   explosionParticle: {fileID: 4964003189073019248}
   smokeParticle: {fileID: 6090940205877729605}

@@ -26,11 +26,14 @@ public class SoundManager : MonoBehaviour {
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            effectsVolume = PlayerPrefs.GetFloat("effectsVolume", 0.5f);
+            _musicSource.volume = PlayerPrefs.GetFloat("musicVolume", 0.5f);
         }
         else {
             Destroy(gameObject);
         }
     }
+    
 
     public void PlaySound(SoundDescriptor sd) {
         _effectsSource.pitch = Random.Range(sd.pitchRange.x, sd.pitchRange.y);
@@ -39,10 +42,12 @@ public class SoundManager : MonoBehaviour {
 
     public void ChangeEffectsVolume(float volume) {
         effectsVolume = volume;
+        PlayerPrefs.SetFloat("effectsVolume", volume);
     }
 
     public void ChangeMusicVolume(float volume) {
         _musicSource.volume = volume;
+        PlayerPrefs.SetFloat("musicVolume", volume);
     }
 
     public void ToggleEffects() {

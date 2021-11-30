@@ -87,12 +87,32 @@ public class SmartAI : EnemyAI {
         Time.timeScale = 0;
         int value = 0;
 
+        // execute command
         command.Execute();
+
+        // check potential player moves
+
         foreach (Unit playerUnit in GameManager.instance.player.units) {
             List<MoveUnitCommand> playerMoves = playerUnit.GetAvailableMoves();
             foreach (MoveUnitCommand playerMove in playerMoves) {
                 playerMove.Execute();
-                value += command.unit.GetAvailableAttacks().Count;
+
+                List<MoveUnitCommand> playerSecondMoves = playerUnit.GetAvailableMoves();
+                foreach (MoveUnitCommand secondMove in playerSecondMoves) {
+                    secondMove.Execute();
+                    // add value if unit can hit player
+                    if (command.unit.GetAvailableAttacks().Count > 0) {
+                        value += command.unit.attackAiValue;
+                    }
+
+                    // subtract value if unit can be hit by player
+                    if (playerUnit.GetAttackableTiles().Contains(command.unit.currentTile)) {
+                        value += command.unit.dangerAiValue;
+                    }
+
+                    secondMove.Undo();
+                }
+
                 playerMove.Undo();
             }
         }

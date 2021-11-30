@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour {
 
     public bool moveInProgress;
     public bool wantsToEndTurn;
-    
+
     public UnitDescriptor enemyLight;
     public UnitDescriptor enemySniper;
     public UnitDescriptor playerLight;
@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour {
             helpMenu.ToggleMenu();
         }
     }
-    
+
     public void Restart() {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -154,14 +154,15 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator GameLoop() {
         while (true) {
-            if(moveInProgress) yield return new WaitForEndOfFrame();
-            
+            if (moveInProgress) yield return new WaitForEndOfFrame();
+
             if (opponent.units.Count == 0) {
                 _endDisplay.gameObject.SetActive(true);
                 _endDisplay.GameWon();
                 state = GameState.GAME_ENDED;
                 EventManager.instance.GameEnded();
                 player.ResetGridDisplay();
+                PlayerPrefs.SetInt(PlayerPrefs.GetInt("selectedLevel") + "completed", 1);
             }
 
             if (player.units.Count == 0) {
@@ -184,7 +185,7 @@ public class GameManager : MonoBehaviour {
                 yield return StartCoroutine(opponent.MakeMove());
                 yield return new WaitUntil(() => wantsToEndTurn);
                 wantsToEndTurn = false;
-                
+
                 state = GameState.PLAYER_TURN;
                 turnDisplay.PlayerTurn();
                 foreach (Unit unit in player.units) {
