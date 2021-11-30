@@ -20,6 +20,10 @@ public class Bar : MonoBehaviour {
     [SerializeField] Image attackOrb;
     [SerializeField] float unavailableAlpha = 0.2f;
 
+    [Header("Action Points")]
+    [SerializeField] GameObject firstAction;
+    [SerializeField] GameObject secondAction;
+
     Unit unit;
 
     void Start() {
@@ -28,6 +32,24 @@ public class Bar : MonoBehaviour {
         SetHealthDisplay(unit.health);
         unit.onHealthChanged += UpdateHealthDisplay;
         unit.onUnitAvailable += UpdateAvailablity;
+        unit.onUnitActionPointsChanged += UpdateActionPoints;
+    }
+
+    void UpdateActionPoints() {
+        if (unit.available) {
+            if (unit.movedThisTurn) {
+                firstAction.SetActive(true);
+                secondAction.SetActive(false);
+            }
+            else {
+                firstAction.SetActive(true);
+                secondAction.SetActive(true);
+            }
+        }
+        else {
+            firstAction.SetActive(false);
+            secondAction.SetActive(false);
+        }
     }
 
     void UpdateAvailablity(bool isOn) {

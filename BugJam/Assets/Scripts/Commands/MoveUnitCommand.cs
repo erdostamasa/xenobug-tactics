@@ -4,6 +4,7 @@ public class MoveUnitCommand : Command {
     public Unit unit;
     public int xBefore;
     public int yBefore;
+    bool movedBefore;
     Quaternion rotBefore;
     public int x;
     public int y;
@@ -19,19 +20,35 @@ public class MoveUnitCommand : Command {
         xBefore = unit.currentTile.x;
         yBefore = unit.currentTile.y;
         rotBefore = unit.transform.rotation;
+        movedBefore = unit.movedThisTurn;
 
         unit.MoveTo(x, y);
-        unit.canMove = false;
+
+        if (unit.movedThisTurn) {
+            unit.SetUnavailable();
+        }
+        else {
+            unit.movedThisTurn = true;
+            unit.UnitActionPointsChanged();
+        }
     }
 
     public override void ExecuteAnimate() {
         unit.MoveAnimate(x, y);
-        unit.canMove = false;
+
+        if (unit.movedThisTurn) {
+            unit.SetUnavailable();
+        }
+        else {
+            unit.movedThisTurn = true;
+            unit.UnitActionPointsChanged();
+        }
     }
 
     public void Undo() {
         unit.MoveTo(xBefore, yBefore);
         unit.transform.rotation = rotBefore;
+        unit.movedThisTurn = movedBefore;
     }
 
     public override string ToString() {

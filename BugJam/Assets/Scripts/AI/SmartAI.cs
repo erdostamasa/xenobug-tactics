@@ -29,8 +29,11 @@ public class SmartAI : EnemyAI {
 
 
             yield return new WaitUntil(() => !GameManager.instance.moveInProgress);
+            yield return new WaitForSeconds(0.2f);
 
-            // 2. ATTACK IF POSSIBLE
+
+            // 2. MOVE OR ATTACK
+            possibleMoves = unit.GetAvailableMoves().OrderBy(a => Guid.NewGuid()).ToList(); //randomize order
             List<AttackCommand> possibleAttacks = unit.GetAvailableAttacks();
 
             if (possibleAttacks.Count > 0) {
@@ -40,7 +43,15 @@ public class SmartAI : EnemyAI {
                 possibleAttacks[0].ExecuteAnimate();
             }
             else {
-                unit.SetUnavailable();
+                foreach (MoveUnitCommand moveUnitCommand in possibleMoves) {
+                    int value = CalculateMoveValue(moveUnitCommand);
+                    if (value > bestValue) {
+                        bestMove = moveUnitCommand;
+                        bestValue = value;
+                    }
+                }
+
+                bestMove.ExecuteAnimate();
             }
 
 

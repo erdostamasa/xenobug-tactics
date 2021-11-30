@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour {
 
 
     void Update() {
-        if (GameManager.instance.state == GameManager.GameState.ENEMY_TURN || GameManager.instance.moveInProgress) return;
+        if (GameManager.instance.state == GameManager.GameState.ENEMY_TURN) return;
 
         if (!HasAvailableUnit()) {
             EndTurn();
@@ -60,13 +60,13 @@ public class PlayerController : MonoBehaviour {
                             //select unit
                             selected = tileUnderMouse.Unit;
                             
-                            if (tileUnderMouse.Unit.canMove) {
+                            //if (tileUnderMouse.Unit.canMove) {
                                 //display move range
                                 selectedCommands = selected.GetAvailableMoves();
                                 foreach (MoveUnitCommand command in selectedCommands) {
                                     command.DisplayCommand();
                                 }    
-                            }
+                            //}
                             
                             // display attack range
                             foreach (Tile tile in selected.GetAttackableTiles()) {

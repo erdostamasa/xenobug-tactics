@@ -24,7 +24,6 @@ public class PlayerUnit : Unit {
         turret.forward = oldForward;
 
         StartCoroutine(RotateTurret(targetY, target));
-        SetUnavailable();
     }
 
     

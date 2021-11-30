@@ -11,7 +11,7 @@ public class Unit : MonoBehaviour {
     public Owner owner;
     public int[,] attackPattern;
     public bool available;
-    public bool canMove;
+    public bool movedThisTurn;
     // [SerializeField] Material availableMaterial;
     // [SerializeField] Material unavailableMaterial;
     // [SerializeField] TextMeshProUGUI healthDisplay;
@@ -39,10 +39,14 @@ public class Unit : MonoBehaviour {
 
     public event Action<int> onHealthChanged;
     public event Action<bool> onUnitAvailable;
-    public event Action onUnitMoved;
+    public event Action onUnitActionPointsChanged;
 
-    float moveDuration = 0.3f;
-    float rotateDuration = 0.2f;
+    public void UnitActionPointsChanged() {
+        onUnitActionPointsChanged?.Invoke();
+    }
+
+    float moveDuration = 0.15f;
+    float rotateDuration = 0.05f;
 
 
     void Start() {
@@ -75,8 +79,6 @@ public class Unit : MonoBehaviour {
             transform.forward = dir;
         }
 
-
-        SetUnavailable();
     }
 
     public virtual void MoveAnimate(int x, int y) {
@@ -135,6 +137,8 @@ public class Unit : MonoBehaviour {
             }
             
             moveAudioSource.mute = true;
+            
+            
         });
         
     }
@@ -143,6 +147,8 @@ public class Unit : MonoBehaviour {
     public void Attack(Unit target) {
         target.TakeDamage(damage);
         SetUnavailable();
+        
+        
     }
 
     public virtual void AttackAnimate(Unit target) {
@@ -154,6 +160,7 @@ public class Unit : MonoBehaviour {
 
         transform.forward = (target.transform.position - transform.position).normalized;
         SetUnavailable();
+        onUnitActionPointsChanged?.Invoke();
     }
 
 
@@ -171,15 +178,16 @@ public class Unit : MonoBehaviour {
 
     public void SetAvailable() {
         available = true;
-        canMove = true;
+        movedThisTurn = false;
         onUnitAvailable?.Invoke(true);
+        onUnitActionPointsChanged?.Invoke();
         //GetComponentInChildren<Renderer>().material = availableMaterial;
     }
 
     public void SetUnavailable() {
         available = false;
-        canMove = false;
         onUnitAvailable?.Invoke(false);
+        onUnitActionPointsChanged?.Invoke();
         //GetComponentInChildren<Renderer>().material = unavailableMaterial;
     }
 
@@ -211,7 +219,7 @@ public class Unit : MonoBehaviour {
 
     public List<Tile> GetMovableTiles() {
 
-        if (!canMove) return new List<Tile>();
+        
         
         List<Tile> reachable = Grid.instance.GetReachableInRange(currentTile, moveRange);
 

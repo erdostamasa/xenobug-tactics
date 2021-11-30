@@ -52,16 +52,17 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   owner: 0
   available: 0
+  movedThisTurn: 0
   uiHeightOffset: 0.6
   damagedParticles: {fileID: 1306598653362084098}
   moveParticles:
   - {fileID: 1763839446664704954}
   - {fileID: 6897525939448665276}
   attackSound: {fileID: 8300000, guid: bb2e2714f962491428dcb0b38598b251, type: 3}
-  damagedSound: {fileID: 8300000, guid: 1fd31868d68903d4f9e2c4a3b7ef98f3, type: 3}
+  damagedSound: {fileID: 0}
   deathSound: {fileID: 8300000, guid: 986d6b30567e30e428f3f21373fe45ca, type: 3}
   moveAudioSource: {fileID: 8558056431759911127}
-  moveRange: 4
+  moveRange: 3
   health: 4
   damage: 1
   explosionParticle: {fileID: 2250781389501548354}
